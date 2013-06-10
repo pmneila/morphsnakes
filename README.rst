@@ -40,6 +40,7 @@ Brief theoretical description
 
 The PDE for the Geodesic Active Contours (GAC) is
 
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/eq1.png
 
 This PDE is the sum of three terms. From left to right, the smoothing term, the
 balloon term and the image attachment term. It is well-known that the balloon
@@ -59,6 +60,7 @@ the composition of the dilation, the erosion and the curvature operator.
 In a very similar way, the Active Contours without Edges (ACWE) evolves the
 embedding function using the PDE
 
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/eq2.png
 
 [1]_ describes the Morphological ACWE (MorphACWE) approximating this PDE with
 the dilation, the erosion and the curvature operator.
@@ -73,17 +75,14 @@ ACWE for MorphACWE).
 MorphGAC
 --------
 
-.. image: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure9.png
-..   :align: center
-
 .. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure9.png
-   :width: 50%
+   :scale: 100%
    :align: center
    
    Detection of a breast nodule with MorphGAC.
 
 .. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure10.png
-   :width: 50%
+   :scale: 100%
    :align: center
    
    Segmentation of a starfish with MorphGAC.
@@ -92,19 +91,19 @@ MorphACWE
 ---------
 
 .. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure12.png
-   :width: 50%
+   :scale: 100%
    :align: center
    
    Lakes segmentation with MorphACWE.
 
 .. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure13.png
-   :width: 50%
+   :scale: 100%
    :align: center
    
    MorphACWE segmenting irregular textures.
 
 .. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure14.png
-   :width: 50%
+   :scale: 100%
    :align: center
    
    Segmenting a dendrite in a three-dimensional image.
