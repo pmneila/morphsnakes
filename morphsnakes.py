@@ -316,16 +316,15 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
     # Prepare the visual environment.
     fig = ppl.gcf()
     fig.clf()
-    ax1 = fig.add_subplot(1,1,1)
+    ax1 = fig.add_subplot(1,2,1)
     if background is None:
         ax1.imshow(msnake.data, cmap=ppl.cm.gray)
     else:
         ax1.imshow(background, cmap=ppl.cm.gray)
     ax1.contour(msnake.levelset, [0.5], colors='r')
     
-    #ax2 = fig.add_subplot(1,2,2)
-    #ax_u = ax2.imshow(msnake.levelset)
-    ppl.axis('off')
+    ax2 = fig.add_subplot(1,2,2)
+    ax_u = ax2.imshow(msnake.levelset)
     ppl.pause(0.001)
     
     # Iterate.
@@ -334,11 +333,9 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
         msnake.step()
         
         # Update figure.
-        del ax1.collections[:]
-        ax1.contour(msnake.levelset, [0.5], colors='k', linewidths=5)
-        ax1.contour(msnake.levelset, [0.5], colors='r', linewidths=2)
-        ppl.savefig("gifs/lakes%03d.png"%i, bbox_inches='tight')
-        #ax_u.set_data(msnake.levelset)
+        del ax1.collections[0]
+        ax1.contour(msnake.levelset, [0.5], colors='r')
+        ax_u.set_data(msnake.levelset)
         fig.canvas.draw()
         #ppl.pause(0.001)
     

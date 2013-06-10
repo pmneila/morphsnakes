@@ -29,7 +29,7 @@ def test_nodule():
     
     # Visual evolution.
     ppl.figure()
-    morphsnakes.evolve_visual(mgac, num_iters=50, background=img)
+    morphsnakes.evolve_visual(mgac, num_iters=45, background=img)
 
 def test_starfish():
     # Load the image.
@@ -45,7 +45,7 @@ def test_starfish():
     
     # Visual evolution.
     ppl.figure()
-    morphsnakes.evolve_visual(mgac, num_iters=120, background=imgcolor)
+    morphsnakes.evolve_visual(mgac, num_iters=110, background=imgcolor)
 
 def test_lakes():
     # Load the image.
@@ -64,7 +64,7 @@ def test_lakes():
 
 if __name__ == '__main__':
     print """"""
-    #test_nodule()
-    #test_starfish()
+    test_nodule()
+    test_starfish()
     test_lakes()
     ppl.show()
