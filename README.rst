@@ -10,9 +10,9 @@ tracking and image segmentation.
 
 The first ideas of *Morphological Snakes* were introduced in [2]_. [1]_
 completes that work describing the underlying mathematical foundations,
-extending the application to both the two-dimensional and three-dimensional
-cases, and the introducing two new algorithms: *Morphological Geodesic Active
-Contours* and *Morphological Active Contours Without Edges*.
+extending the application to the two-dimensional and three-dimensional cases,
+and introducing two new algorithms: *Morphological Geodesic Active Contours* and
+*Morphological Active Contours Without Edges*.
 
 Background
 ==========
@@ -68,33 +68,37 @@ the dilation, the erosion and the curvature operator.
 Examples
 ========
 
-Some examples of the Morphological Snakes under several conditions. Each figure
-compares the evolution with their continuous counterpart (GAC for MorphGAC and
-ACWE for MorphACWE).
+The images below show some working examples of the Morphological Snakes.
 
 MorphGAC
 --------
 
-.. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure9.png
-   :scale: 100%
-   :align: center
-   
-   Detection of a breast nodule with MorphGAC.
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/nodule.gif
 
-.. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure10.png
-   :scale: 100%
-   :align: center
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/starfish.gif
+
+.. .. figure: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure9.png
+..    :scale: 100%
+..    :align: center
    
-   Segmentation of a starfish with MorphGAC.
+..    Detection of a breast nodule with MorphGAC.
+
+.. .. figure: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure10.png
+..    :scale: 100%
+..    :align: center
+   
+..    Segmentation of a starfish with MorphGAC.
 
 MorphACWE
 ---------
 
-.. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure12.png
-   :scale: 100%
-   :align: center
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/lakes.gif
+
+.. .. figure: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure12.png
+..    :scale: 100%
+..    :align: center
    
-   Lakes segmentation with MorphACWE.
+..    Lakes segmentation with MorphACWE.
 
 .. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure13.png
    :scale: 100%

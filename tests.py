@@ -29,7 +29,7 @@ def test_nodule():
     
     # Visual evolution.
     ppl.figure()
-    morphsnakes.evolve_visual(mgac, num_iters=45, background=img)
+    morphsnakes.evolve_visual(mgac, num_iters=50, background=img)
 
 def test_starfish():
     # Load the image.
@@ -41,11 +41,11 @@ def test_starfish():
     
     # Morphological GAC. Initialization of the level-set.
     mgac = morphsnakes.MorphGAC(gI, smoothing=2, threshold=0.3, balloon=-1)
-    mgac.levelset = circle_levelset(img.shape, (163, 138), 135, scalerow=0.75)
+    mgac.levelset = circle_levelset(img.shape, (163, 137), 135, scalerow=0.75)
     
     # Visual evolution.
     ppl.figure()
-    morphsnakes.evolve_visual(mgac, num_iters=110, background=imgcolor)
+    morphsnakes.evolve_visual(mgac, num_iters=120, background=imgcolor)
 
 def test_lakes():
     # Load the image.
@@ -64,7 +64,7 @@ def test_lakes():
 
 if __name__ == '__main__':
     print """"""
-    test_nodule()
-    test_starfish()
+    #test_nodule()
+    #test_starfish()
     test_lakes()
     ppl.show()
