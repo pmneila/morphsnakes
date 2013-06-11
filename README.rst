@@ -77,40 +77,14 @@ MorphGAC
 
 .. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/starfish.gif
 
-.. .. figure: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure9.png
-..    :scale: 100%
-..    :align: center
-   
-..    Detection of a breast nodule with MorphGAC.
-
-.. .. figure: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure10.png
-..    :scale: 100%
-..    :align: center
-   
-..    Segmentation of a starfish with MorphGAC.
-
 MorphACWE
 ---------
 
 .. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/lakes.gif
 
-.. .. figure: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure12.png
-..    :scale: 100%
-..    :align: center
-   
-..    Lakes segmentation with MorphACWE.
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/europe.gif
 
-.. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure13.png
-   :scale: 100%
-   :align: center
-   
-   MorphACWE segmenting irregular textures.
-
-.. figure:: https://raw.github.com/pmneila/morphsnakes/master/examples/Figure14.png
-   :scale: 100%
-   :align: center
-   
-   Segmenting a dendrite in a three-dimensional image.
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/dendrite.gif
 
 Implementation
 ==============
