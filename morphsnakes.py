@@ -356,7 +356,8 @@ def evolve_visual3d(msnake, levelset=None, num_iters=20):
     num_iters : int, optional
         The number of iterations.
     """
-    from enthought.mayavi import mlab
+    from mayavi import mlab
+    import matplotlib.pyplot as ppl
     
     if levelset is not None:
         msnake.levelset = levelset
@@ -367,9 +368,16 @@ def evolve_visual3d(msnake, levelset=None, num_iters=20):
     mlab.pipeline.image_plane_widget(src, plane_orientation='x_axes', colormap='gray')
     cnt = mlab.contour3d(msnake.levelset, contours=[0.5])
     
-    for i in xrange(num_iters):
-        msnake.step()
-        cnt.mlab_source.scalars = msnake.levelset
+    @mlab.animate(ui=True)
+    def anim():
+        for i in xrange(num_iters):
+            msnake.step()
+            cnt.mlab_source.scalars = msnake.levelset
+            print "Iteration %s/%s..." % (i + 1, num_iters)
+            yield
+    
+    anim()
+    mlab.show()
     
     # Return the last levelset.
     return msnake.levelset
