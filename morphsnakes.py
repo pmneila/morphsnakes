@@ -41,13 +41,13 @@ class fcycle(object):
         self.funcs = cycle(iterable)
     
     def __call__(self, *args, **kwargs):
-        f = self.funcs.next()
+        f = next(self.funcs)
         return f(*args, **kwargs)
     
 
 # SI and IS operators for 2D and 3D.
 _P2 = [np.eye(3), np.array([[0,1,0]]*3), np.flipud(np.eye(3)), np.rot90([[0,1,0]]*3)]
-_P3 = [np.zeros((3,3,3)) for i in xrange(9)]
+_P3 = [np.zeros((3,3,3)) for i in range(9)]
 
 _P3[0][:,:,1] = 1
 _P3[1][:,1,:] = 1
@@ -68,12 +68,12 @@ def SI(u):
     elif np.ndim(u) == 3:
         P = _P3
     else:
-        raise ValueError, "u has an invalid number of dimensions (should be 2 or 3)"
+        raise ValueError("u has an invalid number of dimensions (should be 2 or 3)")
     
     if u.shape != _aux.shape[1:]:
         _aux = np.zeros((len(P),) + u.shape)
     
-    for i in xrange(len(P)):
+    for i in range(len(P)):
         _aux[i] = binary_erosion(u, P[i])
     
     return _aux.max(0)
@@ -86,12 +86,12 @@ def IS(u):
     elif np.ndim(u) == 3:
         P = _P3
     else:
-        raise ValueError, "u has an invalid number of dimensions (should be 2 or 3)"
+        raise ValueError("u has an invalid number of dimensions (should be 2 or 3)")
     
     if u.shape != _aux.shape[1:]:
         _aux = np.zeros((len(P),) + u.shape)
     
-    for i in xrange(len(P)):
+    for i in range(len(P)):
         _aux[i] = binary_dilation(u, P[i])
     
     return _aux.min(0)
@@ -153,7 +153,7 @@ class MorphACWE(object):
         u = self._u
         
         if u is None:
-            raise ValueError, "the levelset function is not set (use set_levelset)"
+            raise ValueError("the levelset function is not set (use set_levelset)")
         
         data = self.data
         
@@ -174,14 +174,14 @@ class MorphACWE(object):
         res[aux > 0] = 0
         
         # Smoothing.
-        for i in xrange(self.smoothing):
+        for i in range(self.smoothing):
             res = curvop(res)
         
         self._u = res
     
     def run(self, iterations):
         """Run several iterations of the morphological Chan-Vese method."""
-        for i in xrange(iterations):
+        for i in range(iterations):
             self.step()
     
 
@@ -259,7 +259,7 @@ class MorphGAC(object):
         v = self._v
         
         if u is None:
-            raise ValueError, "the levelset is not set (use set_levelset)"
+            raise ValueError("the levelset is not set (use set_levelset)")
         
         res = np.copy(u)
         
@@ -280,14 +280,14 @@ class MorphGAC(object):
         res[aux < 0] = 0
         
         # Smoothing.
-        for i in xrange(self.smoothing):
+        for i in range(self.smoothing):
             res = curvop(res)
         
         self._u = res
     
     def run(self, iterations):
         """Run several iterations of the morphological snakes method."""
-        for i in xrange(iterations):
+        for i in range(iterations):
             self.step()
     
 
@@ -328,7 +328,7 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
     ppl.pause(0.001)
     
     # Iterate.
-    for i in xrange(num_iters):
+    for i in range(num_iters):
         # Evolve.
         msnake.step()
         
@@ -370,10 +370,10 @@ def evolve_visual3d(msnake, levelset=None, num_iters=20):
     
     @mlab.animate(ui=True)
     def anim():
-        for i in xrange(num_iters):
+        for i in range(num_iters):
             msnake.step()
             cnt.mlab_source.scalars = msnake.levelset
-            print "Iteration %s/%s..." % (i + 1, num_iters)
+            print("Iteration %s/%s..." % (i + 1, num_iters))
             yield
     
     anim()
