@@ -11,7 +11,7 @@ def rgb2gray(img):
 
 def circle_levelset(shape, center, sqradius, scalerow=1.0):
     """Build a binary function with a circle as the 0.5-levelset."""
-    grid = np.mgrid[map(slice, shape)].T - center
+    grid = np.mgrid[list(map(slice, shape))].T - center
     phi = sqradius - np.sqrt(np.sum((grid.T)**2, 0))
     u = np.float_(phi > 0)
     return u
@@ -75,7 +75,7 @@ def test_confocal3d():
     morphsnakes.evolve_visual3d(macwe, num_iters=200)
 
 if __name__ == '__main__':
-    print """"""
+    print("""""")
     test_nodule()
     test_starfish()
     test_lakes()
