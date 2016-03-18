@@ -23,6 +23,26 @@ static const int curv_operator_2d[4][2] = {{0, 8},
 typedef int Position;
 
 template<int D>
+bool isBoundary(const std::array<int, D>& coords, const std::array<int, D>& shape)
+{
+    for(int i = 0; i < D; ++i)
+    {
+        if(coords[i] == 0 || coords[i] == shape[i]-1)
+            return true;
+    }
+    return false;
+}
+
+template<int D>
+std::array<int, D> positionToCoords(const Position& position, const std::array<int, D>& stride)
+{
+    std::array<int, D> res;
+    std::transform(stride.begin(), stride.end(), res.begin(),
+                    [&](int s){return position / s;});
+    return res;
+}
+
+template<int D>
 class Neighborhood;
 
 template<>
@@ -61,15 +81,27 @@ template<class T, int D>
 class NDImageIterator
 {
 public:
+    class Element
+    {
+    public:
+        Element(const Position& position, const std::array<int, D>& cursor)
+            : position(position)
+            , coords(cursor)
+        {}
+        const Position& position;
+        const std::array<int, D>& coords;
+    };
+    
     NDImageIterator(const NDImage<T, D>& image, bool atEnd=false)
         : image(image)
-        , position(atEnd ? -1 : 0)
     {
         if(!atEnd)
         {
-            cursor.fill(1);
+            cursor.fill(0);
             position = std::inner_product(cursor.begin(), cursor.end(), image.stride.begin(), 0);
         }
+        else
+            position = -1;
     }
     
     NDImageIterator& operator++()
@@ -77,13 +109,13 @@ public:
         int i;
         for(i = D - 1; i >= 0; --i)
         {
-            if(cursor[i] < image.shape[i] - 2)
+            if(cursor[i] < image.shape[i] - 1)
             {
                 ++cursor[i];
                 break;
             }
             else
-                cursor[i] = 1;
+                cursor[i] = 0;
         }
         
         if(i == -1)
@@ -103,7 +135,7 @@ public:
         return aux;
     }
     
-    Position operator*() {return position;}
+    Element operator*() {return Element(position, cursor);}
     
     bool operator==(const NDImageIterator& rhs) const
     {
@@ -186,15 +218,18 @@ CellMap createCellMap(const NDImage<T, D>& image)
 {
     CellMap cellMap;
     
-    for(auto position : image)
+    for(auto pixel : image)
     {
-        const T& val = image[position];
+        if(isBoundary<D>(pixel.coords, image.shape))
+            continue;
         
-        for(auto n : image.getNeighbors(position))
+        const T& val = image[pixel.position];
+        
+        for(auto n : image.getNeighbors(pixel.position))
         {
             if(image[n] != val)
             {
-                cellMap[position] = Cell();
+                cellMap[pixel.position] = Cell();
                 break;
             }
         }
