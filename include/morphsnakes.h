@@ -20,7 +20,31 @@ static const int curv_operator_2d[4][2] = {{0, 8},
 
 }
 
-typedef int Position;
+// typedef int Position;
+template<int D>
+class Position
+{
+public:
+    typedef std::array<int, D> Coord;
+    
+    Position(const Coord& coords, int offset)
+        : coord(coords)
+        , offset(offset)
+    {}
+    
+    int offset;
+    Coord coord;
+    
+    bool operator<(const Position& rhs) const
+    {
+        return offset < rhs.offset;
+    }
+    
+    bool operator==(const Position& rhs) const
+    {
+        return offset == rhs.offset;
+    }
+};
 
 template<int D>
 bool isBoundary(const std::array<int, D>& coords, const std::array<int, D>& shape)
@@ -34,74 +58,72 @@ bool isBoundary(const std::array<int, D>& coords, const std::array<int, D>& shap
 }
 
 template<int D>
-std::array<int, D> positionToCoords(const Position& position, const std::array<int, D>& stride)
+bool isBoundary(const Position<D>& position, const std::array<int, D>& shape)
+{
+    return isBoundary<D>(position.coord, shape);
+}
+
+template<int D>
+std::array<int, D> offsetToCoord(int offset, const std::array<int, D>& stride)
 {
     std::array<int, D> res;
     std::transform(stride.begin(), stride.end(), res.begin(),
-                    [&](int s){return position / s;});
+                    [&](int s){return offset / s;});
     return res;
 }
 
 template<int D>
-class Neighborhood;
+int coordToOffset(const std::array<int, D>& coord, const std::array<int, D>& stride)
+{
+    return std::inner_product(coord.begin(), coord.end(), stride.begin(), 0);
+}
+
+template<int D>
+class NeighborOffsets;
 
 template<>
-class Neighborhood<2>
+class NeighborOffsets<2>
 {
 public:
     static const int num_neighbors = 9;
-    static constexpr int offsets[num_neighbors][2] = {{-1, -1}, {-1, 0}, {-1, 1},
-                                                        {0, -1}, {0,0}, {0, 1},
-                                                        {1, -1}, {1, 0}, {1, 1}};
-    std::array<Position, num_neighbors> neighbors;
+    
+    typedef Position<2>::Coord Coord;
+    typedef std::array<Coord, num_neighbors> CoordOffsets;
+    typedef std::array<int, num_neighbors> LinearOffsets;
+    
+    static constexpr CoordOffsets coord_offsets = {
+        {{-1, -1}, {-1, 0}, {-1, 1},
+        {0, -1}, {0,0}, {0, 1},
+        {1, -1}, {1, 0}, {1, 1}}
+    };
+    LinearOffsets linear_offsets;
 
 public:
-    Neighborhood(const std::array<int, 2>& stride)
+    NeighborOffsets(const std::array<int, 2>& stride)
     {
         for(int i = 0; i < num_neighbors; ++i)
-            neighbors[i] = offsets[i][0] * stride[1] + offsets[i][1] * stride[0];
-    }
-    
-    std::array<Position, num_neighbors> getNeighbors(const Position& pos) const
-    {
-        std::array<Position, num_neighbors> res;
-        for(int i = 0; i < num_neighbors; ++i)
-            res[i] = neighbors[i] + pos;
-        
-        return res;
+            linear_offsets[i] = coord_offsets[i][0] * stride[1] + coord_offsets[i][1] * stride[0];
     }
 };
 
-constexpr int Neighborhood<2>::offsets[Neighborhood<2>::num_neighbors][2];
+constexpr NeighborOffsets<2>::CoordOffsets NeighborOffsets<2>::coord_offsets;
 
 template<class T, int D>
 class NDImage;
 
-template<class T, int D>
+template<int D>
 class NDImageIterator
 {
 public:
-    class Element
+    NDImageIterator(const std::array<int, D>& shape,
+                    const std::array<int, D>& stride,
+                    bool atEnd=false)
+        : shape(shape)
+        , stride(stride)
+        , position(std::array<int, D>(), 0)
     {
-    public:
-        Element(const Position& position, const std::array<int, D>& cursor)
-            : position(position)
-            , coords(cursor)
-        {}
-        const Position& position;
-        const std::array<int, D>& coords;
-    };
-    
-    NDImageIterator(const NDImage<T, D>& image, bool atEnd=false)
-        : image(image)
-    {
-        if(!atEnd)
-        {
-            cursor.fill(0);
-            position = std::inner_product(cursor.begin(), cursor.end(), image.stride.begin(), 0);
-        }
-        else
-            position = -1;
+        position.coord.fill(0);
+        position.offset = atEnd ? -1 : 0;
     }
     
     NDImageIterator& operator++()
@@ -109,19 +131,19 @@ public:
         int i;
         for(i = D - 1; i >= 0; --i)
         {
-            if(cursor[i] < image.shape[i] - 1)
+            if(position.coord[i] < shape[i] - 1)
             {
-                ++cursor[i];
+                ++position.coord[i];
                 break;
             }
             else
-                cursor[i] = 0;
+                position.coord[i] = 0;
         }
         
         if(i == -1)
-            position = -1;
+            position.offset = -1;
         else
-            position = std::inner_product(cursor.begin(), cursor.end(), image.stride.begin(), 0);
+            position.offset = coordToOffset<D>(position.coord, stride);
         
         return *this;
     }
@@ -135,22 +157,112 @@ public:
         return aux;
     }
     
-    Element operator*() {return Element(position, cursor);}
+    const Position<D>& operator*() const
+    {return position;}
     
     bool operator==(const NDImageIterator& rhs) const
     {
-        return position == rhs.position;
+        return position.offset == rhs.position.offset;
     }
 
     bool operator!=(const NDImageIterator& rhs) const
     {
-        return position != rhs.position;
+        return position.offset != rhs.position.offset;
     }
 
 public:
-    const NDImage<T, D>& image;
-    Position position;
-    std::array<int, D> cursor;
+    const std::array<int, D> shape;
+    const std::array<int, D> stride;
+    Position<D> position;
+};
+
+template<int D>
+class NeighborhoodIterator
+{
+public:
+    
+    typedef typename Position<D>::Coord Coord;
+    typedef typename NeighborOffsets<D>::CoordOffsets::const_iterator CoordOffsetsIt;
+    typedef typename NeighborOffsets<D>::LinearOffsets::const_iterator LinearOffsetsIt;
+    
+    NeighborhoodIterator(const Position<D>& center,
+                         const CoordOffsetsIt& coord_iterator,
+                         const LinearOffsetsIt& linear_iterator)
+        : center(center)
+        , coord_iterator(coord_iterator)
+        , linear_iterator(linear_iterator)
+    {}
+    
+    NeighborhoodIterator& operator++()
+    {
+        ++coord_iterator;
+        ++linear_iterator;
+        
+        return *this;
+    }
+    
+    NeighborhoodIterator operator++(int)
+    {
+        NeighborhoodIterator aux(*this);
+        
+        ++(*this);
+        
+        return aux;
+    }
+    
+    Position<D> operator*()
+    {
+        Coord new_coord;
+        
+        const Coord& coord_offset = *coord_iterator;
+        for(int i = 0; i < D; ++i)
+        {
+            new_coord[i] = center.coord[i] + coord_offset[i];
+        }
+        
+        int new_offset = center.offset + *linear_iterator;
+        
+        return Position<D>(new_coord, new_offset);
+    }
+    
+    bool operator==(const NeighborhoodIterator& rhs) const
+    {
+        return this->linear_iterator == rhs.linear_iterator;
+    }
+    
+    bool operator!=(const NeighborhoodIterator& rhs) const
+    {
+        return this->linear_iterator != rhs.linear_iterator;
+    }
+    
+private:
+    const Position<D>& center;
+    CoordOffsetsIt coord_iterator;
+    LinearOffsetsIt linear_iterator;
+};
+
+template<int D>
+class Neighborhood
+{
+public:
+    Neighborhood(const Position<D>& center, const NeighborOffsets<D>& offsets)
+        : center(center)
+        , offsets(offsets)
+    {}
+    
+    NeighborhoodIterator<D> begin()
+    {
+        return NeighborhoodIterator<D>(center, offsets.coord_offsets.begin(), offsets.linear_offsets.begin());
+    }
+    
+    NeighborhoodIterator<D> end()
+    {
+        return NeighborhoodIterator<D>(center, offsets.coord_offsets.end(), offsets.linear_offsets.end());
+    }
+    
+private:
+    const Position<D>& center;
+    const NeighborOffsets<D>& offsets;
 };
 
 template<class T, int D>
@@ -162,40 +274,50 @@ public:
         , data_bytes(reinterpret_cast<char*>(data))
         , shape(shape)
         , stride(stride)
-        , neighborhood(stride)
+        , neighbor_offsets(stride)
     {}
     
-    T& operator[](const Position& position)
+    T& operator[](int offset)
     {
-        return *reinterpret_cast<T*>(&data_bytes[position]);
+        return *reinterpret_cast<T*>(&data_bytes[offset]);
     }
     
-    const T& operator[](const Position& position) const
+    const T& operator[](int offset) const
     {
-        return *reinterpret_cast<T*>(&data_bytes[position]);
+        return *reinterpret_cast<T*>(&data_bytes[offset]);
     }
     
-    std::array<Position, Neighborhood<D>::num_neighbors> getNeighbors(const Position& position) const
+    T& operator[](const Position<D>& position)
     {
-        return neighborhood.getNeighbors(position);
+        return this->operator[](position.offset);
     }
     
-    NDImageIterator<T, D> begin() const
+    const T& operator[](const Position<D>& position) const
     {
-        return NDImageIterator<T, D>(*this);
+        return this->operator[](position.offset);
     }
     
-    NDImageIterator<T, D> end() const
+    Neighborhood<D> neighborhood(const Position<D>& center) const
     {
-        return NDImageIterator<T, D>(*this, true);
+        return Neighborhood<D>(center, neighbor_offsets);
+    }
+    
+    NDImageIterator<D> begin() const
+    {
+        return NDImageIterator<D>(shape, stride);
+    }
+    
+    NDImageIterator<D> end() const
+    {
+        return NDImageIterator<D>(shape, stride, true);
     }
     
 public:
     T* data;
     char* data_bytes;
-    std::array<int, D> shape;
-    std::array<int, D> stride;
-    const Neighborhood<D> neighborhood;
+    const std::array<int, D> shape;
+    const std::array<int, D> stride;
+    const NeighborOffsets<D> neighbor_offsets;
 };
 
 // Narrow band cell
@@ -205,50 +327,48 @@ public:
     Cell()
         : toggle(false)
     {}
-//    const Position<D> position;
     bool toggle;
-//    int boundaries;
-//    bool dirty;
 };
-
-typedef std::map<Position, Cell > CellMap;
-
-template<class T, int D>
-CellMap createCellMap(const NDImage<T, D>& image)
-{
-    CellMap cellMap;
-    
-    for(auto pixel : image)
-    {
-        if(isBoundary<D>(pixel.coords, image.shape))
-            continue;
-        
-        const T& val = image[pixel.position];
-        
-        for(auto n : image.getNeighbors(pixel.position))
-        {
-            if(image[n] != val)
-            {
-                cellMap[pixel.position] = Cell();
-                break;
-            }
-        }
-    }
-    
-    return cellMap;
-}
 
 template<int D>
 class NarrowBand
 {
 public:
+    
+    typedef std::map<Position<D>, Cell> CellMap;
+    
+    template<class T>
+    CellMap createCellMap(const NDImage<T, D>& image)
+    {
+        CellMap cellMap;
+        
+        for(auto pixel : image)
+        {
+            if(isBoundary<D>(pixel, image.shape))
+                continue;
+            
+            const T& val = image[pixel];
+            
+            for(auto n : image.neighborhood(pixel))
+            {
+                if(image[n] != val)
+                {
+                    cellMap[pixel] = Cell();
+                    break;
+                }
+            }
+        }
+        
+        return cellMap;
+    }
+    
     typedef NDImage<int, D> Image;
     
     NarrowBand(Image& image)
         : _image(image), _cells(createCellMap(image))
     {}
     
-    void toggleCell(const Position& position)
+    void toggleCell(const Position<D>& position)
     {
         _cells[position].toggle = true;
     }
@@ -260,7 +380,7 @@ public:
         auto cellIt = _cells.begin();
         for(; cellIt != _cells.end(); ++cellIt)
         {
-            const Position& position = cellIt->first;
+            const Position<D>& position = cellIt->first;
             if(!cellIt->second.toggle)
                 continue;
             
@@ -280,7 +400,7 @@ public:
         auto cellIt = _cells.begin();
         for(; cellIt != _cells.end(); ++cellIt)
         {
-            Position position = cellIt->first;
+            const Position<D>& position = cellIt->first;
             auto val = _image[position];
             
             // for(auto n : _image.getNeighbors(position))
