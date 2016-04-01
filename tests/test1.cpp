@@ -4,9 +4,9 @@
 
 #include "morphsnakes.h"
 
-std::ostream& operator<<(std::ostream& ostr, const std::array<int, 2>& arr)
+std::ostream& operator<<(std::ostream& ostr, const morphsnakes::Position<2>& pos)
 {
-    ostr << "(" << arr[0] << ", " << arr[1] << ")";
+    ostr << pos.offset << "(" << pos.coord[0] << ", " << pos.coord[1] << ")";
     return ostr;
 }
 
@@ -22,31 +22,45 @@ int main()
     
     morphsnakes::NDImage<int, 2> image(data, shape, strides);
     
-    for(auto aux : image)
-    {
-        std::cout << aux.offset << " " << aux.coord << " " << image[aux.offset] << std::endl;
-        if(morphsnakes::isBoundary<2>(aux, image.shape))
-            continue;
-        for(auto n : image.neighborhood(aux))
-        {
-            std::cout << "\t" << n.offset << " " << n.coord << " " << image[n] << std::endl;
-        }
-        // for(auto n : image.getNeighbors(aux))
-        //     std::cout << aux << " " << n << std::endl;
-    }
+    // for(auto aux : image)
+    // {
+    //     std::cout << aux << " " << image[aux.offset] << std::endl;
+    //     if(morphsnakes::isBoundary<2>(aux, image.shape))
+    //         continue;
+    //
+    //     for(auto n : image.neighborhood(aux))
+    //         std::cout << "\t" << n << " " << image[n] << std::endl;
+    // }
     
     // morphsnakes::CellMap cellMap = createCellMap(image);
     // std::cout << cellMap << std::endl;
     morphsnakes::NarrowBand<2> narrowBand(image);
-    // narrowBand.toggleCell(180);
-    // for(auto c : narrowBand.getCellMap())
-    // {
-    //     std::cout << c.first << " " << c.second.toggle << std::endl;
-    // }
+    auto cellMap = narrowBand.getCellMap();
+    
+    for(auto c : narrowBand.getCellMap())
+    {
+        if(c.first.offset == 180)
+            narrowBand.toggleCell(c.first);
+        
+        std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
+    }
+    
+    std::cout << std::endl;
+    
+    morphsnakes::morph_op(morphsnakes::curv_operator_2d, true, narrowBand);
+    
     // narrowBand.flush();
     // for(auto c : narrowBand.getCellMap())
     // {
-    //     std::cout << c.first << " " << c.second.toggle << std::endl;
+    //     std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
+    // }
+    //
+    // std::cout << std::endl;
+    //
+    // narrowBand.prune();
+    // for(auto c : narrowBand.getCellMap())
+    // {
+    //     std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
     // }
     
     return 0;

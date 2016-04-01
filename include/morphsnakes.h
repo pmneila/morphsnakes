@@ -10,16 +10,6 @@
 namespace morphsnakes
 {
 
-namespace detail
-{
-
-static const int curv_operator_2d[4][2] = {{0, 8},
-                                           {1, 7},
-                                           {2, 6},
-                                           {3, 5}};
-
-}
-
 // typedef int Position;
 template<int D>
 class Position
@@ -197,7 +187,6 @@ public:
     {
         ++coord_iterator;
         ++linear_iterator;
-        
         return *this;
     }
     
@@ -216,9 +205,7 @@ public:
         
         const Coord& coord_offset = *coord_iterator;
         for(int i = 0; i < D; ++i)
-        {
             new_coord[i] = center.coord[i] + coord_offset[i];
-        }
         
         int new_offset = center.offset + *linear_iterator;
         
@@ -338,7 +325,7 @@ public:
     typedef std::map<Position<D>, Cell> CellMap;
     
     template<class T>
-    CellMap createCellMap(const NDImage<T, D>& image)
+    static CellMap createCellMap(const NDImage<T, D>& image)
     {
         CellMap cellMap;
         
@@ -387,9 +374,14 @@ public:
             _image[position] = !_image[position];
             cellIt->second.toggle = false;
             
-            auto neighbors = _image.neighborhood.getNeighbors(position);
-            for(auto n : neighbors)
+            for(auto n : _image.neighborhood(position))
+            {
+                // Don't add boundary pixels to the NarrowBand.
+                if(isBoundary<D>(n, _image.shape))
+                    continue;
+                
                 updatedCells[n] = Cell();
+            }
         }
         
         _cells.insert(updatedCells.begin(), updatedCells.end());
@@ -398,69 +390,65 @@ public:
     void prune()
     {
         auto cellIt = _cells.begin();
-        for(; cellIt != _cells.end(); ++cellIt)
+        while(cellIt != _cells.end())
         {
             const Position<D>& position = cellIt->first;
             auto val = _image[position];
             
-            // for(auto n : _image.getNeighbors(position))
-            // {
-            //     if(_image[n] != val)
-            //         toRemove.insert(position);
-            // }
+            bool shouldDelete = true;
+            for(auto n : _image.neighborhood(position))
+            {
+                if(_image[n] != val)
+                {
+                    shouldDelete = false;
+                    break;
+                }
+            }
+            
+            if(shouldDelete)
+                cellIt = _cells.erase(cellIt);
+            else
+                ++cellIt;
         }
     }
     
     const CellMap& getCellMap() const {return _cells;}
+    const Image& getImage() const {return _image;}
     
 private:
     Image& _image;
     CellMap _cells;
 };
 
-template<int D>
-class embedding_function;
+static const int curv_operator_2d[4][2] = {{0, 8},
+                                           {1, 7},
+                                           {2, 6},
+                                           {3, 5}};
 
-template<>
-class embedding_function<2>
+/**
+ * Morphological operator acting over a narrow band.
+ */
+template<class M, int D>
+void morph_op(const M& op, bool sup_inf, NarrowBand<D>& narrowBand)
 {
-    static const int num_neighbors = 9;
+    typedef typename NarrowBand<D>::CellMap CellMap;
+    typedef typename NarrowBand<D>::Image Image;
     
-private:
-    NDImage<bool, 2>* image;
-    int neighborhood[num_neighbors];
+    const CellMap& cellMap = narrowBand.getCellMap();
+    const Image& image = narrowBand.getImage();
     
-public:
-    embedding_function(NDImage<bool, 2>* _image)
-        : image(_image)
+    for(auto cell : cellMap)
     {
-        static const int offsets[][2] = {{-1, -1}, {-1, 0}, {-1, 1},
-                                         {0, -1}, {0, 0}, {0, 1},
-                                         {1, -1}, {1, 0}, {1, 1}};
+        auto val = image[cell.first];
         
-        for(int i = 0; i < num_neighbors; ++i)
-            neighborhood[i] = offsets[i][0] * image->stride[1] + offsets[i][1] * image->stride[0];
-    }
-    
-    void curv_op(bool SI = false)
-    {
+        // If sup_inf and val is 0 or inf_sup and val is 1, then no change is possible.
+        if(val != sup_inf)
+            continue;
         
-        for(int i = 1; i < image->shape[0] - 1; ++i)
-        {
-            for(int j = 1; j < image->shape[1] - 1; ++j)
-            {
-                int offset = i * image->stride[1] + j * image->stride[0];
-                
-                bool patch[num_neighbors];
-                for(int p_i = 0; p_i < num_neighbors; ++p_i)
-                    patch[p_i] = image->data[offset + neighborhood[p_i]];
-                
-                
-            }
-        }
+        const Neighborhood<D>& neighborhood = image.neighborhood(cell.first);
+        
     }
-
-};
+}
 
 }
 
