@@ -3,6 +3,7 @@
 #define _MORPHSNAKES_H
 
 #include <map>
+#include <cassert>
 
 #include "ndimage.h"
 
@@ -25,7 +26,7 @@ class NarrowBand
 public:
     
     typedef std::map<Position<D>, Cell> CellMap;
-    typedef NDImage<int, D> Image;
+    typedef NDImage<int, D> Embedding;
     
     template<class T>
     static CellMap createCellMap(const NDImage<T, D>& image)
@@ -52,8 +53,8 @@ public:
         return cellMap;
     }
     
-    NarrowBand(Image& image)
-        : _image(image), _cells(createCellMap(image))
+    NarrowBand(Embedding& embedding)
+        : _embedding(embedding), _cells(createCellMap(embedding))
     {}
     
     void toggleCell(const Position<D>& position)
@@ -72,13 +73,13 @@ public:
             if(!cellIt->second.toggle)
                 continue;
             
-            _image[position] = !_image[position];
+            _embedding[position] = !_embedding[position];
             cellIt->second.toggle = false;
             
-            for(auto n : _image.neighborhood(position))
+            for(auto n : _embedding.neighborhood(position))
             {
                 // Don't add boundary pixels to the NarrowBand.
-                if(isBoundary<D>(n, _image.shape))
+                if(isBoundary<D>(n, _embedding.shape))
                     continue;
                 
                 updatedCells[n] = Cell();
@@ -94,12 +95,12 @@ public:
         while(cellIt != _cells.end())
         {
             const Position<D>& position = cellIt->first;
-            auto val = _image[position];
+            auto val = _embedding[position];
             
             bool shouldDelete = true;
-            for(auto n : _image.neighborhood(position))
+            for(auto n : _embedding.neighborhood(position))
             {
-                if(_image[n] != val)
+                if(_embedding[n] != val)
                 {
                     shouldDelete = false;
                     break;
@@ -114,10 +115,10 @@ public:
     }
     
     const CellMap& getCellMap() const {return _cells;}
-    const Image& getImage() const {return _image;}
+    const Embedding& getEmbedding() const {return _embedding;}
     
 protected:
-    Image& _image;
+    Embedding& _embedding;
     CellMap _cells;
 };
 
@@ -125,6 +126,114 @@ template<class T, size_t D>
 class ACWENarrowBand : public NarrowBand<D>
 {
 public:
+    
+    typedef std::map<Position<D>, Cell> CellMap;
+    typedef NDImage<int, D> Embedding;
+    
+    ACWENarrowBand(Embedding& embedding, const NDImage<T, D>& image)
+        : NarrowBand<D>(embedding)
+        , _image(image)
+    {
+        initAverages(embedding, image);
+    }
+    
+    void flush()
+    {
+        CellMap updatedCells;
+        
+        auto cellIt = this->_cells.begin();
+        for(; cellIt != this->_cells.end(); ++cellIt)
+        {
+            const Position<D>& position = cellIt->first;
+            if(!cellIt->second.toggle)
+                continue;
+            
+            int& val = this->_embedding[position];
+            val = !val;
+            
+            updateAverages(position, val);
+            
+            // _embedding[position] = !_embedding[position];
+            cellIt->second.toggle = false;
+            
+            for(auto n : this->_embedding.neighborhood(position))
+            {
+                // Don't add boundary pixels to the NarrowBand.
+                if(isBoundary<D>(n, this->_embedding.shape))
+                    continue;
+                
+                updatedCells[n] = Cell();
+            }
+        }
+        
+        this->_cells.insert(updatedCells.begin(), updatedCells.end());
+    }
+    
+    double getAverageInside() const
+    {
+        return sum_in / static_cast<double>(count_in);
+    }
+
+    double getAverageOutside() const
+    {
+        return sum_out / static_cast<double>(count_out);
+    }
+    
+    const NDImage<T, D>& getImage() const {return _image;}
+    
+private:
+    void initAverages(Embedding& embedding, const NDImage<T, D>& image)
+    {
+        count_in = 0;
+        count_out = 0;
+        sum_in = 0.0;
+        sum_out = 0.0;
+        
+        for(auto& position : embedding)
+        {
+            const auto& embeddingVal = embedding[position];
+            // We need position.coord instead of position since
+            const auto& imageVal = image[position.coord];
+            
+            if(embeddingVal == 0)
+            {
+                ++count_out;
+                sum_out += imageVal;
+            }
+            else
+            {
+                ++count_in;
+                sum_in += imageVal;
+            }
+        }
+    }
+    
+    void updateAverages(const Position<D>& position, int newValue)
+    {
+        const auto& imageVal = _image[position.coord];
+        
+        if(newValue == 0)
+        {
+            --count_in;
+            ++count_out;
+            sum_in -= imageVal;
+            sum_out += imageVal;
+        }
+        else
+        {
+            --count_out;
+            ++count_in;
+            sum_out -= imageVal;
+            sum_in += imageVal;
+        }
+        
+        assert(count_in >= 0 && count_out >= 0);
+    }
+    
+protected:
+    const NDImage<T, D>& _image;
+    int count_in, count_out;
+    double sum_in, sum_out;
 };
 
 // Descriptors of morphological operators
@@ -185,19 +294,19 @@ constexpr OperatorDescriptor<1, 26> Operator<3>::dilate_erode;
 template<class M, size_t D>
 void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
 {
-    typedef typename NarrowBand<D>::Image Image;
+    typedef typename NarrowBand<D>::Embedding Embedding;
     
-    const Image& image = narrowBand.getImage();
+    const Embedding& embedding = narrowBand.getEmbedding();
     
     for(auto& cell : narrowBand.getCellMap())
     {
-        auto& val = image[cell.first];
+        auto& val = embedding[cell.first];
         
         // If sup_inf and val is 0 or inf_sup and val is 1, then no change is possible.
         if(val == inf_sup)
             continue;
         
-        const Neighborhood<D>& neighborhood = image.neighborhood(cell.first);
+        const Neighborhood<D>& neighborhood = embedding.neighborhood(cell.first);
         bool shouldToggle = true;
         for(auto& elem : op)
         {
@@ -205,7 +314,7 @@ void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
             for(auto& index : elem)
             {
                 const Position<D>& n = neighborhood.getNeighbor(index);
-                auto& val = image[n];
+                auto& val = embedding[n];
                 
                 if(val == inf_sup)
                 {
@@ -252,7 +361,7 @@ template<class T, size_t D>
 void image_attachment_gac(const NDImage<T, D>* grads,
                             NarrowBand<D>& narrowBand)
 {
-    const auto& image = narrowBand.getImage();
+    const auto& embedding = narrowBand.getEmbedding();
     
     for(auto& cell : narrowBand.getCellMap())
     {
@@ -262,23 +371,58 @@ void image_attachment_gac(const NDImage<T, D>* grads,
         for(int i = 0; i < D; ++i)
         {
             const T& grad_image_i = grads[i][position.coord];
-            T u_next = image[position.offset + image.stride[i]];
-            T u_prev = image[position.offset - image.stride[i]];
+            T u_next = embedding[position.offset + embedding.stride[i]];
+            T u_prev = embedding[position.offset - embedding.stride[i]];
             T grad_u_i = u_next - u_prev;
             
             dot_product += grad_image_i * grad_u_i;
         }
         
-        const auto& val = image[position];
+        const auto& val = embedding[position];
         if((val == 1 && dot_product < 0) || (val == 0 && dot_product > 0))
             narrowBand.toggleCell(position);
     }
 }
 
-template<class T, size_t D>
-void image_attachment_acwe(ACWENarrowBand<T, D>& narrowBand)
+template<size_t D>
+bool has_zero_gradient(const typename NarrowBand<D>::Embedding& embedding,
+                            const Position<D>& position)
 {
+    for(int i = 0; i < D; ++i)
+    {
+        const auto& u_next = embedding[position.offset + embedding.stride[i]];
+        const auto& u_prev = embedding[position.offset - embedding.stride[i]];
+        if(u_next != u_prev)
+            return false;
+    }
     
+    return true;
+}
+
+template<class T, size_t D>
+void image_attachment_acwe(ACWENarrowBand<T, D>& narrowBand, double lambda1, double lambda2)
+{
+    const auto& embedding = narrowBand.getEmbedding();
+    const auto& image = narrowBand.getImage();
+    
+    double averageIn = narrowBand.getAverageInside();
+    double averageOut = narrowBand.getAverageOutside();
+    for(auto& cell : narrowBand.getCellMap())
+    {
+        const auto& position = cell.first;
+        
+        if(has_zero_gradient(embedding, position))
+            continue;
+        
+        const auto& embeddingVal = embedding[position];
+        const T& imageVal = image[position.coord];
+        
+        double diffIn = imageVal - averageIn;
+        double diffOut = imageVal - averageOut;
+        double criterion = lambda1 * diffIn * diffIn - lambda2 * diffOut * diffOut;
+        if((embeddingVal == 0 && criterion < 0) || (embeddingVal == 1 && criterion > 0))
+            narrowBand.toggleCell(position);
+    }
 }
 
 }
