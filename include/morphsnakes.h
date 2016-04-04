@@ -10,6 +10,9 @@
 namespace morphsnakes
 {
 
+template<size_t D>
+using Embedding = NDImage<unsigned char, D>;
+
 // Narrow band cell
 class Cell
 {
@@ -26,7 +29,6 @@ class NarrowBand
 public:
     
     typedef std::map<Position<D>, Cell> CellMap;
-    typedef NDImage<int, D> Embedding;
     
     template<class T>
     static CellMap createCellMap(const NDImage<T, D>& image)
@@ -53,7 +55,7 @@ public:
         return cellMap;
     }
     
-    NarrowBand(Embedding& embedding)
+    NarrowBand(const Embedding<D>& embedding)
         : _embedding(embedding), _cells(createCellMap(embedding))
     {}
     
@@ -62,7 +64,7 @@ public:
         _cells[position].toggle = true;
     }
     
-    void flush()
+    void update()
     {
         CellMap updatedCells;
         
@@ -89,7 +91,7 @@ public:
         _cells.insert(updatedCells.begin(), updatedCells.end());
     }
     
-    void prune()
+    void cleanup()
     {
         auto cellIt = _cells.begin();
         while(cellIt != _cells.end())
@@ -115,10 +117,10 @@ public:
     }
     
     const CellMap& getCellMap() const {return _cells;}
-    const Embedding& getEmbedding() const {return _embedding;}
+    const Embedding<D>& getEmbedding() const {return _embedding;}
     
 protected:
-    Embedding& _embedding;
+    Embedding<D> _embedding;
     CellMap _cells;
 };
 
@@ -127,17 +129,18 @@ class ACWENarrowBand : public NarrowBand<D>
 {
 public:
     
-    typedef std::map<Position<D>, Cell> CellMap;
-    typedef NDImage<int, D> Embedding;
+    typedef typename NarrowBand<D>::CellMap CellMap;
     
-    ACWENarrowBand(Embedding& embedding, const NDImage<T, D>& image)
+    ACWENarrowBand(const Embedding<D>& embedding, const NDImage<T, D>& image)
         : NarrowBand<D>(embedding)
         , _image(image)
     {
+        assert(embedding.shape == image.shape);
+        
         initAverages(embedding, image);
     }
     
-    void flush()
+    void update()
     {
         CellMap updatedCells;
         
@@ -148,7 +151,7 @@ public:
             if(!cellIt->second.toggle)
                 continue;
             
-            int& val = this->_embedding[position];
+            typename Embedding<D>::DataType& val = this->_embedding[position];
             val = !val;
             
             updateAverages(position, val);
@@ -163,6 +166,7 @@ public:
                     continue;
                 
                 updatedCells[n] = Cell();
+                // updatedCells.insert(typename CellMap::value_type(n, Cell()));
             }
         }
         
@@ -182,7 +186,7 @@ public:
     const NDImage<T, D>& getImage() const {return _image;}
     
 private:
-    void initAverages(Embedding& embedding, const NDImage<T, D>& image)
+    void initAverages(const Embedding<D>& embedding, const NDImage<T, D>& image)
     {
         count_in = 0;
         count_out = 0;
@@ -231,7 +235,7 @@ private:
     }
     
 protected:
-    const NDImage<T, D>& _image;
+    const NDImage<T, D> _image;
     int count_in, count_out;
     double sum_in, sum_out;
 };
@@ -294,9 +298,7 @@ constexpr OperatorDescriptor<1, 26> Operator<3>::dilate_erode;
 template<class M, size_t D>
 void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
 {
-    typedef typename NarrowBand<D>::Embedding Embedding;
-    
-    const Embedding& embedding = narrowBand.getEmbedding();
+    const Embedding<D>& embedding = narrowBand.getEmbedding();
     
     for(auto& cell : narrowBand.getCellMap())
     {
@@ -333,6 +335,8 @@ void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
         if(shouldToggle)
             narrowBand.toggleCell(cell.first);
     }
+    
+    narrowBand.update();
 }
 
 // Common morphological operators: dilation, erosion and curvature
@@ -358,8 +362,8 @@ void curv(bool inf_sup, NarrowBand<D>& narrowBand)
 // Image attachment
 
 template<class T, size_t D>
-void image_attachment_gac(const NDImage<T, D>* grads,
-                            NarrowBand<D>& narrowBand)
+void image_attachment_gac(NarrowBand<D>& narrowBand,
+                            const std::array<NDImage<T, D>*, D> grads)
 {
     const auto& embedding = narrowBand.getEmbedding();
     
@@ -382,10 +386,12 @@ void image_attachment_gac(const NDImage<T, D>* grads,
         if((val == 1 && dot_product < 0) || (val == 0 && dot_product > 0))
             narrowBand.toggleCell(position);
     }
+    
+    narrowBand.update();
 }
 
 template<size_t D>
-bool has_zero_gradient(const typename NarrowBand<D>::Embedding& embedding,
+bool has_zero_gradient(const Embedding<D>& embedding,
                             const Position<D>& position)
 {
     for(int i = 0; i < D; ++i)
@@ -423,7 +429,48 @@ void image_attachment_acwe(ACWENarrowBand<T, D>& narrowBand, double lambda1, dou
         if((embeddingVal == 0 && criterion < 0) || (embeddingVal == 1 && criterion > 0))
             narrowBand.toggleCell(position);
     }
+    
+    narrowBand.update();
 }
+
+template<class T, size_t D>
+class MorphACWE
+{
+public:
+    MorphACWE(const Embedding<D>& embedding, const NDImage<T, D>& image, int smoothing=1, double lambda1=1.0, double lambda2=1.0)
+        : MorphACWE(ACWENarrowBand<T, D>(embedding, image), smoothing, lambda1, lambda2)
+    {}
+    
+    MorphACWE(const ACWENarrowBand<T, D>& narrowBand, int smoothing=1, double lambda1=1.0, double lambda2=1.0)
+        : _narrowBand(narrowBand)
+        , _smoothing(smoothing)
+        , _lambda1(lambda1)
+        , _lambda2(lambda2)
+        , _curv_is(false)
+    {}
+    
+    void step()
+    {
+        // Image attachment
+        image_attachment_acwe(_narrowBand, _lambda1, _lambda2);
+        
+        // Smoothing
+        // for(int i = 0; i < _smoothing; ++i)
+        // {
+        //     curv(_curv_is, _narrowBand);
+        //     _curv_is = !_curv_is;
+        // }
+        
+        _narrowBand.cleanup();
+    }
+    
+protected:
+    ACWENarrowBand<T, D> _narrowBand;
+    int _smoothing;
+    double _lambda1;
+    double _lambda2;
+    bool _curv_is;
+};
 
 }
 

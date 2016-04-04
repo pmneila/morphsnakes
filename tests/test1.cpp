@@ -4,72 +4,58 @@
 
 #include "morphsnakes.h"
 
+#define cimg_display 0
+#include "CImg.h"
+
+namespace ms = morphsnakes;
+using namespace cimg_library;
+
+CImg<double> rgb2gray(const CImg<double>& img)
+{
+    return 0.2989*img.get_channel(0) + 0.587*img.get_channel(1) + 0.114*img.get_channel(2);
+}
+
+CImg<unsigned char> circle_levelset(int height, int width,
+                                    const std::array<int, 2>& center,
+                                    double radius,
+                                    double scalerow=1.0)
+{
+    CImg<unsigned char> res(width, height);
+    for(int i = 0; i < height; ++i)
+    {
+        for(int j = 0; j < width; ++j)
+        {
+            int diffy = (i - center[0]);
+            int diffx = (j - center[1]);
+            res(j, i) = (radius*radius - (diffx*diffx + diffy*diffy)) > 0;
+        }
+    }
+    
+    return res;
+}
+
+template<class T>
+ms::NDImage<T, 2> cimg2ndimage(CImg<T> img)
+{
+    ms::Shape<2> shape = {img.height(), img.width()};
+    ms::Stride<2> stride = {img.width() * sizeof(T), sizeof(T)};
+    
+    return ms::NDImage<T, 2>(img.data(), shape, stride);
+}
+
 int main()
 {
-    int data[100];
-    std::fill(data, data+100, 0);
+    CImg<double> img = rgb2gray(CImg<double>("../testimages/lakes3.jpg")) / 255.0;
+    auto embedding = circle_levelset(img.height(), img.width(), {80, 170}, 25);
     
-    std::array<int, 2> shape = {10, 10};
-    std::array<int, 2> strides = {sizeof(int) * 10, sizeof(int)};
+    (embedding * 100).save_png("test1.png");
+    ms::MorphACWE<double, 2> macwe(cimg2ndimage(embedding), cimg2ndimage(img), 3);
     
-    data[45] = 1;
-    
-    morphsnakes::NDImage<int, 2> image(data, shape, strides);
-    
-    // for(auto aux : image)
-    // {
-    //     std::cout << aux << " " << image[aux.offset] << std::endl;
-    //     if(morphsnakes::isBoundary<2>(aux, image.shape))
-    //         continue;
-    //
-    //     for(auto n : image.neighborhood(aux))
-    //         std::cout << "\t" << n << " " << image[n] << std::endl;
-    // }
-    
-    // morphsnakes::CellMap cellMap = createCellMap(image);
-    // std::cout << cellMap << std::endl;
-    morphsnakes::NarrowBand<2> narrowBand(image);
-    auto cellMap = narrowBand.getCellMap();
-    for(auto c : narrowBand.getCellMap())
+    for(int i = 0; i < 2; ++i)
     {
-        std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
+        // macwe.step();
     }
-    std::cout << std::endl;
-    
-    for(int i=0; i<1; ++i)
-    {
-        morphsnakes::dilate(narrowBand);
-        narrowBand.flush();
-    }
-    // for(auto c : narrowBand.getCellMap())
-    // {
-    //     std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
-    // }
-    // std::cout << std::endl;
-    
-    // morphsnakes::erode(narrowBand);
-    // narrowBand.flush();
-    // for(auto c : narrowBand.getCellMap())
-    // {
-    //     std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
-    // }
-    // std::cout << std::endl;
-    
-    morphsnakes::curv(false, narrowBand);
-    narrowBand.flush();
-    
-    narrowBand.prune();
-    for(auto c : narrowBand.getCellMap())
-    {
-        std::cout << c.first << " " << c.second.toggle << " " << image[c.first] << std::endl;
-    }
-    std::cout << std::endl;
-    
-    const morphsnakes::NDImage<int, 2> grads[2] = {image, image};
-    morphsnakes::image_attachment_gac(grads, narrowBand);
-    
-    morphsnakes::ACWENarrowBand<int, 2> acweNarrowBand(image, image);
-    image_attachment_acwe(acweNarrowBand, 1, 1);
+    (embedding * 100).save_png("test2.png");
     
     return 0;
 }
