@@ -10,6 +10,12 @@ namespace morphsnakes
 {
 
 template<size_t D>
+using Shape = std::array<int, D>;
+
+template<size_t D>
+using Stride = std::array<size_t, D>;
+
+template<size_t D>
 std::array<int, D> operator+(const std::array<int, D>& a, const std::array<int, D>& b)
 {
     std::array<int, D> res;
@@ -51,7 +57,7 @@ std::ostream& operator<<(std::ostream& ostr, const morphsnakes::Position<2>& pos
 }
 
 template<size_t D>
-bool isBoundary(const std::array<int, D>& coords, const std::array<int, D>& shape)
+bool isBoundary(const std::array<int, D>& coords, const Shape<D>& shape)
 {
     for(int i = 0; i < D; ++i)
     {
@@ -62,13 +68,13 @@ bool isBoundary(const std::array<int, D>& coords, const std::array<int, D>& shap
 }
 
 template<size_t D>
-bool isBoundary(const Position<D>& position, const std::array<int, D>& shape)
+bool isBoundary(const Position<D>& position, const Shape<D>& shape)
 {
     return isBoundary<D>(position.coord, shape);
 }
 
 template<size_t D>
-std::array<int, D> offsetToCoord(int offset, const std::array<int, D>& stride)
+std::array<int, D> offsetToCoord(int offset, const Stride<D>& stride)
 {
     std::array<int, D> res;
     std::transform(stride.begin(), stride.end(), res.begin(),
@@ -77,7 +83,7 @@ std::array<int, D> offsetToCoord(int offset, const std::array<int, D>& stride)
 }
 
 template<size_t D>
-int coordToOffset(const std::array<int, D>& coord, const std::array<int, D>& stride)
+int coordToOffset(const std::array<int, D>& coord, const Stride<D>& stride)
 {
     return std::inner_product(coord.begin(), coord.end(), stride.begin(), 0);
 }
@@ -103,7 +109,7 @@ public:
     LinearOffsets linear_offsets;
 
 public:
-    NeighborOffsets(const std::array<int, 2>& stride)
+    NeighborOffsets(const Stride<2>& stride)
     {
         for(int i = 0; i < num_neighbors; ++i)
             linear_offsets[i] = coord_offsets[i][1] * stride[1] + coord_offsets[i][0] * stride[0];
@@ -136,7 +142,7 @@ public:
     LinearOffsets linear_offsets;
 
 public:
-    NeighborOffsets(const std::array<int, 2>& stride)
+    NeighborOffsets(const Stride<3>& stride)
     {
         for(int i = 0; i < num_neighbors; ++i)
             linear_offsets[i] = coord_offsets[i][2] * stride[2] +
@@ -154,8 +160,8 @@ template<size_t D>
 class NDImageIterator
 {
 public:
-    NDImageIterator(const std::array<int, D>& shape,
-                    const std::array<int, D>& stride,
+    NDImageIterator(const Shape<D>& shape,
+                    const Stride<D>& stride,
                     bool atEnd=false)
         : shape(shape)
         , stride(stride)
@@ -210,8 +216,8 @@ public:
     }
 
 public:
-    const std::array<int, D> shape;
-    const std::array<int, D> stride;
+    const Shape<D> shape;
+    const Stride<D> stride;
     Position<D> position;
 };
 
@@ -310,7 +316,7 @@ public:
     
     typedef T DataType;
     
-    NDImage(T* data, const std::array<int, D>& shape, const std::array<int, D>& stride)
+    NDImage(T* data, const Shape<D>& shape, const Stride<D>& stride)
         : data(data)
         , data_bytes(reinterpret_cast<char*>(data))
         , shape(shape)
@@ -368,8 +374,8 @@ public:
 public:
     T* data;
     char* data_bytes;
-    const std::array<int, D> shape;
-    const std::array<int, D> stride;
+    const Shape<D> shape;
+    const Stride<D> stride;
     const NeighborOffsets<D> neighbor_offsets;
 };
 
