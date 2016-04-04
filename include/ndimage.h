@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <array>
+#include <numeric>
 
 namespace morphsnakes
 {
@@ -306,6 +307,9 @@ template<class T, size_t D>
 class NDImage
 {
 public:
+    
+    typedef T DataType;
+    
     NDImage(T* data, const std::array<int, D>& shape, const std::array<int, D>& stride)
         : data(data)
         , data_bytes(reinterpret_cast<char*>(data))
@@ -332,6 +336,18 @@ public:
     const T& operator[](const Position<D>& position) const
     {
         return this->operator[](position.offset);
+    }
+    
+    T& operator[](const typename Position<D>::Coord coord)
+    {
+        int offset = std::inner_product(coord.begin(), coord.end(), stride.begin(), 0);
+        return this->operator[](offset);
+    }
+    
+    const T& operator[](const typename Position<D>::Coord coord) const
+    {
+        int offset = std::inner_product(coord.begin(), coord.end(), stride.begin(), 0);
+        return this->operator[](offset);
     }
     
     Neighborhood<D> neighborhood(const Position<D>& center) const
