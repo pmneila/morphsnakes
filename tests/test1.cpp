@@ -68,5 +68,8 @@ int main()
     const morphsnakes::NDImage<int, 2> grads[2] = {image, image};
     morphsnakes::image_attachment_gac(grads, narrowBand);
     
+    morphsnakes::ACWENarrowBand<int, 2> acweNarrowBand(image, image);
+    image_attachment_acwe(acweNarrowBand, 1, 1);
+    
     return 0;
 }
