@@ -25,6 +25,7 @@ class NarrowBand
 public:
     
     typedef std::map<Position<D>, Cell> CellMap;
+    typedef NDImage<int, D> Image;
     
     template<class T>
     static CellMap createCellMap(const NDImage<T, D>& image)
@@ -50,8 +51,6 @@ public:
         
         return cellMap;
     }
-    
-    typedef NDImage<int, D> Image;
     
     NarrowBand(Image& image)
         : _image(image), _cells(createCellMap(image))
@@ -117,9 +116,15 @@ public:
     const CellMap& getCellMap() const {return _cells;}
     const Image& getImage() const {return _image;}
     
-private:
+protected:
     Image& _image;
     CellMap _cells;
+};
+
+template<class T, size_t D>
+class ACWENarrowBand : public NarrowBand<D>
+{
+public:
 };
 
 // Descriptors of morphological operators
@@ -180,13 +185,11 @@ constexpr OperatorDescriptor<1, 26> Operator<3>::dilate_erode;
 template<class M, size_t D>
 void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
 {
-    typedef typename NarrowBand<D>::CellMap CellMap;
     typedef typename NarrowBand<D>::Image Image;
     
-    const CellMap& cellMap = narrowBand.getCellMap();
     const Image& image = narrowBand.getImage();
     
-    for(auto& cell : cellMap)
+    for(auto& cell : narrowBand.getCellMap())
     {
         auto& val = image[cell.first];
         
@@ -245,7 +248,38 @@ void curv(bool inf_sup, NarrowBand<D>& narrowBand)
 
 // Image attachment
 
+template<class T, size_t D>
+void image_attachment_gac(const NDImage<T, D>* grads,
+                            NarrowBand<D>& narrowBand)
+{
+    const auto& image = narrowBand.getImage();
+    
+    for(auto& cell : narrowBand.getCellMap())
+    {
+        const auto& position = cell.first;
+        
+        T dot_product = 0;
+        for(int i = 0; i < D; ++i)
+        {
+            const T& grad_image_i = grads[i][position.coord];
+            T u_next = image[position.offset + image.stride[i]];
+            T u_prev = image[position.offset - image.stride[i]];
+            T grad_u_i = u_next - u_prev;
+            
+            dot_product += grad_image_i * grad_u_i;
+        }
+        
+        const auto& val = image[position];
+        if((val == 1 && dot_product < 0) || (val == 0 && dot_product > 0))
+            narrowBand.toggleCell(position);
+    }
+}
 
+template<class T, size_t D>
+void image_attachment_acwe(ACWENarrowBand<T, D>& narrowBand)
+{
+    
+}
 
 }
 
