@@ -65,5 +65,8 @@ int main()
     }
     std::cout << std::endl;
     
+    const morphsnakes::NDImage<int, 2> grads[2] = {image, image};
+    morphsnakes::image_attachment_gac(grads, narrowBand);
+    
     return 0;
 }
