@@ -32,8 +32,8 @@ public:
     typedef std::array<int, D> Coord;
     
     Position(const Coord& coords, int offset)
-        : coord(coords)
-        , offset(offset)
+        : offset(offset)
+        , coord(coords)
     {}
     
     int offset;

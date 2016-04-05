@@ -38,7 +38,7 @@ class MorphACWE(object):
     
     def run(self, iterations):
         """Run several iterations of the morphological Chan-Vese method."""
-        for i in xrange(iterations):
+        for _ in range(iterations):
             self.step()
     
 
@@ -78,5 +78,5 @@ class MorphGAC(object):
     
     def run(self, iterations):
         """Run several iterations of the morphological Chan-Vese method."""
-        for i in xrange(iterations):
+        for _ in range(iterations):
             self.step()
