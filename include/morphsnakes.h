@@ -2,243 +2,12 @@
 #ifndef _MORPHSNAKES_H
 #define _MORPHSNAKES_H
 
-#include <map>
 #include <cassert>
 
-#include "ndimage.h"
+#include "narrowband.h"
 
 namespace morphsnakes
 {
-
-template<size_t D>
-using Embedding = NDImage<unsigned char, D>;
-
-// Narrow band cell
-class Cell
-{
-public:
-    Cell()
-        : toggle(false)
-    {}
-    bool toggle;
-};
-
-template<size_t D>
-class NarrowBand
-{
-public:
-    
-    typedef std::map<Position<D>, Cell> CellMap;
-    
-    template<class T>
-    static CellMap createCellMap(const NDImage<T, D>& image)
-    {
-        CellMap cellMap;
-        
-        for(auto pixel : image)
-        {
-            if(isBoundary<D>(pixel, image.shape))
-                continue;
-            
-            const T& val = image[pixel];
-            
-            for(auto n : image.neighborhood(pixel))
-            {
-                if(image[n] != val)
-                {
-                    cellMap[pixel] = Cell();
-                    break;
-                }
-            }
-        }
-        
-        return cellMap;
-    }
-    
-    NarrowBand(const Embedding<D>& embedding)
-        : _embedding(embedding), _cells(createCellMap(embedding))
-    {}
-    
-    void toggleCell(const Position<D>& position)
-    {
-        _cells[position].toggle = true;
-    }
-    
-    void update()
-    {
-        CellMap updatedCells;
-        
-        auto cellIt = _cells.begin();
-        for(; cellIt != _cells.end(); ++cellIt)
-        {
-            const Position<D>& position = cellIt->first;
-            if(!cellIt->second.toggle)
-                continue;
-            
-            _embedding[position] = !_embedding[position];
-            cellIt->second.toggle = false;
-            
-            for(auto n : _embedding.neighborhood(position))
-            {
-                // Don't add boundary pixels to the NarrowBand.
-                if(isBoundary<D>(n, _embedding.shape))
-                    continue;
-                
-                updatedCells[n] = Cell();
-            }
-        }
-        
-        _cells.insert(updatedCells.begin(), updatedCells.end());
-    }
-    
-    void cleanup()
-    {
-        auto cellIt = _cells.begin();
-        while(cellIt != _cells.end())
-        {
-            const Position<D>& position = cellIt->first;
-            auto val = _embedding[position];
-            
-            bool shouldDelete = true;
-            for(auto n : _embedding.neighborhood(position))
-            {
-                if(_embedding[n] != val)
-                {
-                    shouldDelete = false;
-                    break;
-                }
-            }
-            
-            if(shouldDelete)
-                cellIt = _cells.erase(cellIt);
-            else
-                ++cellIt;
-        }
-    }
-    
-    const CellMap& getCellMap() const {return _cells;}
-    const Embedding<D>& getEmbedding() const {return _embedding;}
-    
-protected:
-    Embedding<D> _embedding;
-    CellMap _cells;
-};
-
-template<class T, size_t D>
-class ACWENarrowBand : public NarrowBand<D>
-{
-public:
-    
-    typedef typename NarrowBand<D>::CellMap CellMap;
-    
-    ACWENarrowBand(const Embedding<D>& embedding, const NDImage<T, D>& image)
-        : NarrowBand<D>(embedding)
-        , _image(image)
-    {
-        assert(embedding.shape == image.shape);
-        
-        initAverages(embedding, image);
-    }
-    
-    void update()
-    {
-        CellMap updatedCells;
-        
-        auto cellIt = this->_cells.begin();
-        for(; cellIt != this->_cells.end(); ++cellIt)
-        {
-            const Position<D>& position = cellIt->first;
-            if(!cellIt->second.toggle)
-                continue;
-            
-            typename Embedding<D>::DataType& val = this->_embedding[position];
-            val = !val;
-            
-            updateAverages(position, val);
-            
-            // _embedding[position] = !_embedding[position];
-            cellIt->second.toggle = false;
-            
-            for(auto n : this->_embedding.neighborhood(position))
-            {
-                // Don't add boundary pixels to the NarrowBand.
-                if(isBoundary<D>(n, this->_embedding.shape))
-                    continue;
-                
-                updatedCells[n] = Cell();
-                // updatedCells.insert(typename CellMap::value_type(n, Cell()));
-            }
-        }
-        
-        this->_cells.insert(updatedCells.begin(), updatedCells.end());
-    }
-    
-    double getAverageInside() const
-    {
-        return sum_in / static_cast<double>(count_in);
-    }
-
-    double getAverageOutside() const
-    {
-        return sum_out / static_cast<double>(count_out);
-    }
-    
-    const NDImage<T, D>& getImage() const {return _image;}
-    
-private:
-    void initAverages(const Embedding<D>& embedding, const NDImage<T, D>& image)
-    {
-        count_in = 0;
-        count_out = 0;
-        sum_in = 0.0;
-        sum_out = 0.0;
-        
-        for(auto& position : embedding)
-        {
-            const auto& embeddingVal = embedding[position];
-            // We need position.coord instead of position since
-            const auto& imageVal = image[position.coord];
-            
-            if(embeddingVal == 0)
-            {
-                ++count_out;
-                sum_out += imageVal;
-            }
-            else
-            {
-                ++count_in;
-                sum_in += imageVal;
-            }
-        }
-    }
-    
-    void updateAverages(const Position<D>& position, int newValue)
-    {
-        const auto& imageVal = _image[position.coord];
-        
-        if(newValue == 0)
-        {
-            --count_in;
-            ++count_out;
-            sum_in -= imageVal;
-            sum_out += imageVal;
-        }
-        else
-        {
-            --count_out;
-            ++count_in;
-            sum_out -= imageVal;
-            sum_in += imageVal;
-        }
-        
-        assert(count_in >= 0 && count_out >= 0);
-    }
-    
-protected:
-    const NDImage<T, D> _image;
-    int count_in, count_out;
-    double sum_in, sum_out;
-};
 
 // Descriptors of morphological operators
 
@@ -295,20 +64,21 @@ constexpr OperatorDescriptor<1, 26> Operator<3>::dilate_erode;
 /**
  * Morphological operator acting over a narrow band.
  */
-template<class M, size_t D>
-void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
+template<class M, size_t D, class MaskOp>
+void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand, const MaskOp& mask)
 {
     const Embedding<D>& embedding = narrowBand.getEmbedding();
     
     for(auto& cell : narrowBand.getCellMap())
     {
-        auto& val = embedding[cell.first];
+        auto& position = cell.first;
+        auto& val = embedding[position];
         
         // If sup_inf and val is 0 or inf_sup and val is 1, then no change is possible.
-        if(val == inf_sup)
+        if(!mask(position) || val == inf_sup)
             continue;
         
-        const Neighborhood<D>& neighborhood = embedding.neighborhood(cell.first);
+        const Neighborhood<D>& neighborhood = embedding.neighborhood(position);
         bool shouldToggle = true;
         for(auto& elem : op)
         {
@@ -333,7 +103,7 @@ void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
         }
         
         if(shouldToggle)
-            narrowBand.toggleCell(cell.first);
+            narrowBand.toggleCell(position);
     }
     
     narrowBand.update();
@@ -342,28 +112,49 @@ void morph_op(const M& op, bool inf_sup, NarrowBand<D>& narrowBand)
 // Common morphological operators: dilation, erosion and curvature
 
 template<size_t D>
+struct AlwaysTrue
+{
+    bool operator()(const Position<D>& pos) const
+    {
+        return true;
+    }
+};
+
+template<size_t D>
 void dilate(NarrowBand<D>& narrowBand)
 {
-    morph_op(Operator<D>::dilate_erode, true, narrowBand);
+    morph_op(Operator<D>::dilate_erode, true, narrowBand, AlwaysTrue<D>());
 }
 
 template<size_t D>
 void erode(NarrowBand<D>& narrowBand)
 {
-    morph_op(Operator<D>::dilate_erode, false, narrowBand);
+    morph_op(Operator<D>::dilate_erode, false, narrowBand, AlwaysTrue<D>());
+}
+
+template<size_t D, class MaskOp>
+void dilate(NarrowBand<D>& narrowBand, const MaskOp& mask)
+{
+    morph_op(Operator<D>::dilate_erode, true, narrowBand, mask);
+}
+
+template<size_t D, class MaskOp>
+void erode(NarrowBand<D>& narrowBand, const MaskOp& mask)
+{
+    morph_op(Operator<D>::dilate_erode, false, narrowBand, mask);
 }
 
 template<size_t D>
 void curv(bool inf_sup, NarrowBand<D>& narrowBand)
 {
-    morph_op(Operator<D>::curvature, inf_sup, narrowBand);
+    morph_op(Operator<D>::curvature, inf_sup, narrowBand, AlwaysTrue<D>());
 }
 
 // Image attachment
 
 template<class T, size_t D>
 void image_attachment_gac(NarrowBand<D>& narrowBand,
-                            const std::array<NDImage<T, D>*, D> grads)
+                            const std::array<NDImage<T, D>, D> grads)
 {
     const auto& embedding = narrowBand.getEmbedding();
     
@@ -433,6 +224,7 @@ void image_attachment_acwe(ACWENarrowBand<T, D>& narrowBand, double lambda1, dou
     narrowBand.update();
 }
 
+// Morphological ACWE
 template<class T, size_t D>
 class MorphACWE
 {
@@ -455,11 +247,11 @@ public:
         image_attachment_acwe(_narrowBand, _lambda1, _lambda2);
         
         // Smoothing
-        // for(int i = 0; i < _smoothing; ++i)
-        // {
-        //     curv(_curv_is, _narrowBand);
-        //     _curv_is = !_curv_is;
-        // }
+        for(int i = 0; i < _smoothing; ++i)
+        {
+            curv(_curv_is, _narrowBand);
+            _curv_is = !_curv_is;
+        }
         
         _narrowBand.cleanup();
     }
@@ -469,6 +261,61 @@ protected:
     int _smoothing;
     double _lambda1;
     double _lambda2;
+    bool _curv_is;
+};
+
+// Morphological GAC
+template<class T, size_t D>
+class MorphGAC
+{
+public:
+    MorphGAC(const NarrowBand<D>& narrowBand,
+             const NDImage<T, D>& image,
+             const std::array<NDImage<T, D>, D>& grads,
+             int smoothing=1, double threshold=0.0, double balloon=0.0)
+        : _narrowBand(narrowBand)
+        , _image(image)
+        , _grads(grads)
+        , _smoothing(smoothing)
+        , _threshold(threshold)
+        , _balloon(balloon)
+        , _curv_is(false)
+    {}
+    
+    void step()
+    {
+        // Balloon
+        if(_balloon > 0)
+        {
+            dilate(_narrowBand,
+                [&](const Position<D>& pos){return _image[pos.coord] > _threshold / _balloon;});
+        }
+        else if(_balloon < 0)
+        {
+            erode(_narrowBand,
+                [&](const Position<D>& pos){return _image[pos.coord] > - _threshold / _balloon;});
+        }
+        
+        // Image attachment
+        image_attachment_gac(_narrowBand, _grads);
+        
+        // Smoothing
+        for(int i = 0; i < _smoothing; ++i)
+        {
+            curv(_curv_is, _narrowBand);
+            _curv_is = !_curv_is;
+        }
+        
+        _narrowBand.cleanup();
+    }
+    
+protected:
+    NarrowBand<D> _narrowBand;
+    NDImage<T, D> _image;
+    std::array<NDImage<T, D>, D> _grads;
+    int _smoothing;
+    double _threshold;
+    double _balloon;
     bool _curv_is;
 };
 
