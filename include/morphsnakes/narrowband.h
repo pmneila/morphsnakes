@@ -7,15 +7,19 @@
 
 #include "ndimage.h"
 
+namespace std
+{
 // Hash function for the unordered_map
 template<size_t D>
-struct std::hash<morphsnakes::Position<D> >
+struct hash<morphsnakes::Position<D> >
 {
     size_t operator()(const morphsnakes::Position<D>& position) const
     {
-        return std::hash<int>()(position.offset);
+        return hash<int>()(position.offset);
     }
 };
+
+}
 
 namespace morphsnakes
 {
