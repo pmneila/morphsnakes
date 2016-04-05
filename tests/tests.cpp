@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "morphsnakes.h"
+#include "morphsnakes/morphsnakes.h"
 
 #define cimg_display 0
 #include "CImg.h"
@@ -45,6 +45,7 @@ CImg<unsigned char> circle_levelset(int height, int width,
     return res;
 }
 
+// Conversion from CImg to morphsnakes NDImage
 template<class T>
 ms::NDImage<T, 2> cimg2ndimage(CImg<T>& img)
 {
@@ -56,14 +57,18 @@ ms::NDImage<T, 2> cimg2ndimage(CImg<T>& img)
 
 void lakes()
 {
+    // Load image
     CImg<double> img = rgb2gray(CImg<double>("../testimages/lakes3.jpg")) / 255.0;
+    
+    // Initialize embedding function
     auto embedding = circle_levelset(img.height(), img.width(), {80, 170}, 25);
-        
     (embedding * 255).save_png("lakes_begin.png");
+    
     // Morphological ACWE
     ms::MorphACWE<double, 2> macwe(cimg2ndimage(embedding), cimg2ndimage(img), 3);
     for(int i = 0; i < 200; ++i)
         macwe.step();
+    
     // Save results
     (embedding * 255).save_png("lakes_end.png");
 }
@@ -72,6 +77,8 @@ void starfish()
 {
     // Load image
     CImg<double> img = rgb2gray(CImg<double>("../testimages/seastar2.png")) / 255.0;
+    
+    // Initialize embedding function
     auto embedding = circle_levelset(img.height(), img.width(), {163, 137}, 135);
     (embedding * 255).save_png("seastar_begin.png");
     
