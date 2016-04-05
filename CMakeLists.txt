@@ -13,4 +13,4 @@ add_executable(tests
     include/morphsnakes/narrowband.h
     include/morphsnakes/morphsnakes.h
 )
-target_link_libraries(test1 ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(tests ${CMAKE_THREAD_LIBS_INIT})
