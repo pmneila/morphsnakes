@@ -1,0 +1,14 @@
+include morphsnakes/*.py
+
+include include/morphsnakes/*.h
+include morphsnakes/src/*.h
+include morphsnakes/src/*.cpp
+include morphsnakes/src/_morphsnakes.pyx
+exclude morphsnakes/src/_morphsnakes.cpp
+
+include tests/*.cpp
+include tests/*.py
+
+include setup.py
+include README.rst
+include LICENSE

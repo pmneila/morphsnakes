@@ -1,0 +1,2 @@
+
+#define PY_ARRAY_UNIQUE_SYMBOL morphsnakes_PyArray_API
