@@ -5,7 +5,6 @@
 #include <iostream>
 #include <array>
 #include <numeric>
-#include <algorithm>
 
 namespace morphsnakes
 {
@@ -20,7 +19,7 @@ template<size_t D>
 std::array<int, D> operator+(const std::array<int, D>& a, const std::array<int, D>& b)
 {
     std::array<int, D> res;
-    for(size_t i = 0; i < D; ++i)
+    for(int i = 0; i < D; ++i)
         res[i] = a[i] + b[i];
     return res;
 }
@@ -33,8 +32,8 @@ public:
     typedef std::array<int, D> Coord;
     
     Position(const Coord& coords, int offset)
-        : offset(offset)
-        , coord(coords)
+        : coord(coords)
+        , offset(offset)
     {}
     
     int offset;
@@ -60,7 +59,7 @@ std::ostream& operator<<(std::ostream& ostr, const morphsnakes::Position<2>& pos
 template<size_t D>
 bool isBoundary(const std::array<int, D>& coords, const Shape<D>& shape)
 {
-    for(size_t i = 0; i < D; ++i)
+    for(int i = 0; i < D; ++i)
     {
         if(coords[i] == 0 || coords[i] == shape[i]-1)
             return true;

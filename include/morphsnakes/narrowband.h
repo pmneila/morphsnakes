@@ -1,3 +1,4 @@
+
 #ifndef _NARROWBAND_H
 #define _NARROWBAND_H
 
@@ -6,19 +7,15 @@
 
 #include "ndimage.h"
 
-namespace std
-{
 // Hash function for the unordered_map
 template<size_t D>
-struct hash<morphsnakes::Position<D> >
+struct std::hash<morphsnakes::Position<D> >
 {
     size_t operator()(const morphsnakes::Position<D>& position) const
     {
-        return hash<int>()(position.offset);
+        return std::hash<int>()(position.offset);
     }
 };
-
-}
 
 namespace morphsnakes
 {
@@ -73,14 +70,12 @@ public:
         : _embedding(embedding), _cells(createCellMap(_embedding))
     {}
     
-    virtual ~NarrowBand() {}
-    
     void toggleCell(const Position<D>& position)
     {
         _cells[position].toggle = true;
     }
     
-    virtual void update()
+    void update()
     {
         CellMap<D> updatedCells;
         
@@ -154,7 +149,7 @@ public:
         initAverages(embedding, image);
     }
     
-    virtual void update()
+    void update()
     {
         CellMap<D> updatedCells;
         
@@ -187,20 +182,15 @@ public:
         this->_cells.insert(updatedCells.begin(), updatedCells.end());
     }
     
-    inline double getAverageInside() const
+    double getAverageInside() const
     {
         return sum_in / static_cast<double>(count_in);
     }
 
-    inline double getAverageOutside() const
+    double getAverageOutside() const
     {
         return sum_out / static_cast<double>(count_out);
     }
-    
-    inline int getCountIn() const {return count_in;}
-    inline int getCountOut() const {return count_out;}
-    inline double getSumIn() const {return sum_in;}
-    inline double getSumOut() const {return sum_out;}
     
     const NDImage<T, D>& getImage() const {return _image;}
     
