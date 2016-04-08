@@ -19,7 +19,7 @@ morphsnakes_module = Extension(
         "morphsnakes/src/_morphsnakes.pyx",
     ],
     language="c++",
-    extra_compile_args=["-std=c++11", "-stdlib=libc++"],
+    extra_compile_args=["-std=c++11"],
     include_dirs=[numpy_include_dir, "include"]
 )
 

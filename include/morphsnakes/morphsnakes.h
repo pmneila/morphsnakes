@@ -163,7 +163,7 @@ void image_attachment_gac(NarrowBand<D>& narrowBand,
         const auto& position = cell.first;
         
         T dot_product = 0;
-        for(int i = 0; i < D; ++i)
+        for(size_t i = 0; i < D; ++i)
         {
             const T& grad_image_i = grads[i][position.coord];
             T u_next = embedding[position.offset + embedding.stride[i]];
@@ -185,7 +185,7 @@ template<size_t D>
 bool has_zero_gradient(const Embedding<D>& embedding,
                             const Position<D>& position)
 {
-    for(int i = 0; i < D; ++i)
+    for(size_t i = 0; i < D; ++i)
     {
         const auto& u_next = embedding[position.offset + embedding.stride[i]];
         const auto& u_prev = embedding[position.offset - embedding.stride[i]];
