@@ -115,11 +115,13 @@ def glines(img, sigma=1.0):
 class MorphACWE(object):
     """Morphological ACWE based on the Chan-Vese energy functional."""
     
-    def __init__(self, data, smoothing=1, lambda1=1, lambda2=1):
+    def __init__(self, levelset, data, smoothing=1, lambda1=1, lambda2=1):
         """Create a Morphological ACWE solver.
         
         Parameters
         ----------
+        levelset : ndarray
+            The levelset function.
         data : ndarray
             The image data.
         smoothing : scalar
@@ -131,7 +133,7 @@ class MorphACWE(object):
             Relative importance of the inside pixels (lambda1)
             against the outside pixels (lambda2).
         """
-        self._u = None
+        self.levelset = levelset
         self.smoothing = smoothing
         self.lambda1 = lambda1
         self.lambda2 = lambda2
@@ -188,11 +190,13 @@ class MorphACWE(object):
 class MorphGAC(object):
     """Morphological GAC based on the Geodesic Active Contours."""
     
-    def __init__(self, data, smoothing=1, threshold=0, balloon=0):
+    def __init__(self, levelset, data, smoothing=1, threshold=0, balloon=0):
         """Create a Morphological GAC solver.
         
         Parameters
         ----------
+        levelset : ndarray
+            The levelset function.
         data : array-like
             The stopping criterion g(I). See functions gborders and glines.
         smoothing : scalar
@@ -204,7 +208,7 @@ class MorphGAC(object):
         balloon : scalar
             The strength of the morphological balloon. This is the parameter ν.
         """
-        self._u = None
+        self.levelset = levelset
         self._v = balloon
         self._theta = threshold
         self.smoothing = smoothing

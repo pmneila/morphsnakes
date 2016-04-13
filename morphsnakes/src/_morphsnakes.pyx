@@ -60,10 +60,10 @@ cdef extern from "morphsnakes/morphsnakes.h" namespace "morphsnakes":
 cdef extern from "numpy_wrapper.h":
     Embedding_2 c_numpy2embedding_2 "numpy2ndimage<unsigned char, 2>"(np.ndarray)
     Embedding_3 c_numpy2embedding_3 "numpy2ndimage<unsigned char, 3>"(np.ndarray)
-    NDImage_double_2 c_numpy2ndimage_double_2 "numpy2ndimage<double, 2>"(np.ndarray)
-    NDImage_double_3 c_numpy2ndimage_double_3 "numpy2ndimage<double, 3>"(np.ndarray)
-    ArrayOfNDImage_double_2 c_pylist2stdrray_double_2 "pylist2stdrray<double, 2>"(list)
-    ArrayOfNDImage_double_3 c_pylist2stdrray_double_3 "pylist2stdrray<double, 3>"(list)
+    NDImage_double_2 c_numpy2ndimage_double_2 "numpy2ndimage<double, 2>"(np.ndarray) except +
+    NDImage_double_3 c_numpy2ndimage_double_3 "numpy2ndimage<double, 3>"(np.ndarray) except +
+    ArrayOfNDImage_double_2 c_pylist2stdrray_double_2 "pylist2stdrray<double, 2>"(list) except +
+    ArrayOfNDImage_double_3 c_pylist2stdrray_double_3 "pylist2stdrray<double, 3>"(list) except +
     NarrowBand_2 dereferenceNB_2 "dereferenceNB<2>"(NarrowBand_2*)
     NarrowBand_3 dereferenceNB_3 "dereferenceNB<3>"(NarrowBand_3*)
 

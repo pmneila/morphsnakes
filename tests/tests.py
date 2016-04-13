@@ -24,8 +24,8 @@ def test_nodule():
     gI = morphsnakes.gborders(img, alpha=1000, sigma=5.48)
     
     # Morphological GAC. Initialization of the level-set.
-    mgac = morphsnakes.MorphGAC(gI, smoothing=1, threshold=0.31, balloon=1)
-    mgac.levelset = circle_levelset(img.shape, (100, 126), 20)
+    levelset = circle_levelset(img.shape, (100, 126), 20)
+    mgac = morphsnakes.MorphGAC(levelset, gI, smoothing=1, threshold=0.31, balloon=1)
     
     # Visual evolution.
     ppl.figure()
@@ -40,8 +40,8 @@ def test_starfish():
     gI = morphsnakes.gborders(img, alpha=1000, sigma=2)
     
     # Morphological GAC. Initialization of the level-set.
-    mgac = morphsnakes.MorphGAC(gI, smoothing=2, threshold=0.3, balloon=-1)
-    mgac.levelset = circle_levelset(img.shape, (163, 137), 135, scalerow=0.75)
+    levelset = circle_levelset(img.shape, (163, 137), 135, scalerow=0.75)
+    mgac = morphsnakes.MorphGAC(levelset, gI, smoothing=2, threshold=0.3, balloon=-1)
     
     # Visual evolution.
     ppl.figure()
@@ -55,8 +55,8 @@ def test_lakes():
     # MorphACWE does not need g(I)
     
     # Morphological ACWE. Initialization of the level-set.
-    macwe = morphsnakes.MorphACWE(img, smoothing=3, lambda1=1, lambda2=1)
-    macwe.levelset = circle_levelset(img.shape, (80, 170), 25)
+    levelset = circle_levelset(img.shape, (80, 170), 25)
+    macwe = morphsnakes.MorphACWE(levelset, img, smoothing=3, lambda1=1, lambda2=1)
     
     # Visual evolution.
     ppl.figure()
@@ -68,8 +68,8 @@ def test_confocal3d():
     img = np.load("testimages/confocal.npy")
     
     # Morphological ACWE. Initialization of the level-set.
-    macwe = morphsnakes.MorphACWE(img, smoothing=1, lambda1=1, lambda2=2)
-    macwe.levelset = circle_levelset(img.shape, (30, 50, 80), 25)
+    levelset = circle_levelset(img.shape, (30, 50, 80), 25)
+    macwe = morphsnakes.MorphACWE(levelset, img, smoothing=1, lambda1=1, lambda2=2)
     
     # Visual evolution.
     morphsnakes.evolve_visual3d(macwe, num_iters=200)
