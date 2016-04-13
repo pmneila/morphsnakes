@@ -1,5 +1,8 @@
 # -*- encoding: utf-8 -*-
 
+import sys
+import os
+
 try:
     from setuptools import setup
 except ImportError:
@@ -10,7 +13,15 @@ from Cython.Build import cythonize
 import numpy
 from distutils.extension import Extension
 
-# Get the version number.
+extra_compile_args = ["-std=c++11"]
+
+# Fix a problem with OSX
+if sys.platform == 'darwin':
+    extra_compile_args.append("-stdlib=libc++")
+    cur_target = os.environ.get('MACOSX_DEPLOYMENT_TARGET')
+    if cur_target is None:
+        os.environ['MACOSX_DEPLOYMENT_TARGET'] = "10.7"
+
 numpy_include_dir = numpy.get_include()
 
 morphsnakes_module = Extension(
@@ -19,12 +30,12 @@ morphsnakes_module = Extension(
         "morphsnakes/src/_morphsnakes.pyx",
     ],
     language="c++",
-    extra_compile_args=["-std=c++11"],
+    extra_compile_args=extra_compile_args,
     include_dirs=[numpy_include_dir, "include"]
 )
 
 setup(name="MorphSnakes",
-    version="0.0.4",
+    version="1.0.0",
     description="Morphological Snakes",
     author="Pablo Márquez Neila",
     author_email="pablo.marquezneila@epfl.ch",
