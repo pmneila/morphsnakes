@@ -7,10 +7,10 @@ class MorphACWE(object):
     
     def __init__(self, levelset, data, smoothing=1, lambda1=1, lambda2=1):
         self._levelset = np.uint8(levelset)
-        self.data = data
+        self.data = np.float_(data)
         self.smoothing = smoothing
-        self.lambda1 = self.lambda1
-        self.lambda2 = self.lambda2
+        self.lambda1 = lambda1
+        self.lambda2 = lambda2
         
         self._build_c_instance()
     
@@ -46,7 +46,7 @@ class MorphGAC(object):
     
     def __init__(self, levelset, data, smoothing=1, threshold=1, balloon=1):
         self._levelset = np.uint8(levelset)
-        self.data = data
+        self.data = np.float_(data)
         self.grads = np.gradient(self.data)
         self.smoothing = smoothing
         self.threshold = threshold
