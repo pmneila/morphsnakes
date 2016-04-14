@@ -32,7 +32,7 @@ ms::NDImage<T, D> numpy2ndimage(PyArrayObject* arr)
     
     ms::Shape<D> shape;
     ms::Stride<D> stride;
-    for(int i = 0; i < D; ++i)
+    for(size_t i = 0; i < D; ++i)
     {
         shape[i] = arr_shape[i];
         stride[i] = arr_stride[i];
