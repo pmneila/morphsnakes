@@ -1,4 +1,3 @@
-
 #ifndef _NARROWBAND_H
 #define _NARROWBAND_H
 
@@ -73,6 +72,8 @@ public:
     NarrowBand(const Embedding<D>& embedding)
         : _embedding(embedding), _cells(createCellMap(_embedding))
     {}
+    
+    virtual ~NarrowBand() {}
     
     void toggleCell(const Position<D>& position)
     {
