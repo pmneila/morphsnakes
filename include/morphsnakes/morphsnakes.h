@@ -250,6 +250,7 @@ public:
         for(int i = 0; i < _smoothing; ++i)
         {
             curv(_curv_is, _narrowBand);
+            curv(!_curv_is, _narrowBand);
             _curv_is = !_curv_is;
         }
         
@@ -303,6 +304,7 @@ public:
         for(int i = 0; i < _smoothing; ++i)
         {
             curv(_curv_is, _narrowBand);
+            curv(!_curv_is, _narrowBand);
             _curv_is = !_curv_is;
         }
         

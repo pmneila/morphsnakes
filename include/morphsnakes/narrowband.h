@@ -79,7 +79,7 @@ public:
         _cells[position].toggle = true;
     }
     
-    void update()
+    virtual void update()
     {
         CellMap<D> updatedCells;
         
@@ -153,7 +153,7 @@ public:
         initAverages(embedding, image);
     }
     
-    void update()
+    virtual void update()
     {
         CellMap<D> updatedCells;
         
@@ -186,15 +186,20 @@ public:
         this->_cells.insert(updatedCells.begin(), updatedCells.end());
     }
     
-    double getAverageInside() const
+    inline double getAverageInside() const
     {
         return sum_in / static_cast<double>(count_in);
     }
 
-    double getAverageOutside() const
+    inline double getAverageOutside() const
     {
         return sum_out / static_cast<double>(count_out);
     }
+    
+    inline int getCountIn() const {return count_in;}
+    inline int getCountOut() const {return count_out;}
+    inline double getSumIn() const {return sum_in;}
+    inline double getSumOut() const {return sum_out;}
     
     const NDImage<T, D>& getImage() const {return _image;}
     
