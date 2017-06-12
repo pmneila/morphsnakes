@@ -3,10 +3,11 @@
 Morphological Snakes
 ====================
 
-The *Morphological Snakes* are a family of related methods for image-guided
-evolution of curves and surfaces represented as a level-set of an embedding
-function. They have application in several computer vision areas, such as
-tracking and image segmentation.
+.. image:: https://raw.github.com/pmneila/morphsnakes/master/examples/lakes.gif
+
+The *Morphological Snakes* are a family of methods for image-guided evolution of
+curves and surfaces. They have application in several computer vision areas,
+such as tracking and image segmentation.
 
 The first ideas of *Morphological Snakes* were introduced in [2]_. [1]_
 completes that work describing the underlying mathematical foundations,
@@ -55,7 +56,7 @@ the smoothing term. With this new operator, [1]_ also introduces the
 *Morphological Geodesic Active Contours* (MorphGAC).
 
 The MorphGAC consists of the approximation to the above PDE of the GAC with
-the composition of the dilation, the erosion and the curvature operator. 
+the composition of the dilation, the erosion and the curvature operator.
 
 In a very similar way, the Active Contours without Edges (ACWE) evolves the
 embedding function using the PDE
