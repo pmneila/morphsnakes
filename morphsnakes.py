@@ -73,8 +73,8 @@ def SI(u):
     if u.shape != _aux.shape[1:]:
         _aux = np.zeros((len(P),) + u.shape)
     
-    for i in range(len(P)):
-        _aux[i] = binary_erosion(u, P[i])
+    for _aux_i, P_i in zip(_aux, P):
+        _aux_i[:] = binary_erosion(u, P_i)
     
     return _aux.max(0)
 
@@ -91,8 +91,8 @@ def IS(u):
     if u.shape != _aux.shape[1:]:
         _aux = np.zeros((len(P),) + u.shape)
     
-    for i in range(len(P)):
-        _aux[i] = binary_dilation(u, P[i])
+    for _aux_i, P_i in zip(_aux, P):
+        _aux_i[:] = binary_dilation(u, P_i)
     
     return _aux.min(0)
 
