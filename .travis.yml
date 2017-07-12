@@ -1,0 +1,33 @@
+# vim ft=yaml
+
+# After changing this file, check it on:
+#   http://yaml-online-parser.appspot.com/
+
+# See doc/travis_notes.txt for some guidelines
+
+language: python
+
+sudo: required
+
+python:
+  - 2.7
+  - 3.5
+
+# See http://docs.travis-ci.com/user/caching/#pip-cache
+cache: pip
+
+before_install:
+  - sudo apt-get install python-vtk
+  - python -c "import vtk"
+  - pip install --upgrade pip
+
+install:
+  - pip install -r requirements.txt
+  - pip install nose codecov
+
+script:
+  - nosetests tests --exe --with-doctest --with-coverage
+  - codecov
+
+after_success:
+  - coverage report

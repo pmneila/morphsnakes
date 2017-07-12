@@ -1,0 +1,4 @@
+numpy>=1.11.3
+scipy>=0.10.0
+matplotlib==2.0.2
+MayaVi==1.5
