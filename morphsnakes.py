@@ -26,13 +26,20 @@ See test.py for examples of usage.
 """
 __author__ = "P. Márquez Neila <p.mneila@upm.es>"
 
+import os
+import logging
 from itertools import cycle
+
+import matplotlib
+# in case you are running on machine without display, e.g. server
+if os.environ.get('DISPLAY', '') == '':
+    logging.warning('No display found. Using non-interactive Agg backend.')
+    matplotlib.use('Agg')
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import binary_dilation, binary_erosion
 from scipy.ndimage import gaussian_filter, gaussian_gradient_magnitude
-from mayavi import mlab
 
 
 class FCycle(object):
@@ -170,8 +177,8 @@ class MorphACWE(object):
         data = self.data
         
         # Determine c0 and c1.
-        inside = u > 0
-        outside = u <= 0
+        inside = (u > 0)
+        outside = (u <= 0)
         c0 = data[outside].sum() / float(outside.sum())
         c1 = data[inside].sum() / float(inside.sum())
         
@@ -194,7 +201,7 @@ class MorphACWE(object):
     
     def run(self, nb_iters):
         """Run several nb_iters of the morphological Chan-Vese method."""
-        for i in range(nb_iters):
+        for _ in range(nb_iters):
             self.step()
     
 
@@ -302,7 +309,7 @@ class MorphGAC(object):
     
     def run(self, iterations):
         """Run several iterations of the morphological snakes method."""
-        for i in range(iterations):
+        for _ in range(iterations):
             self.step()
     
 
@@ -344,7 +351,7 @@ def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None
     plt.pause(0.001)
     
     # Iterate.
-    for i in range(num_iters):
+    for _ in range(num_iters):
         # Evolve.
         msnake.step()
         
@@ -380,8 +387,8 @@ def evolve_visual3d(msnake, fig=None, levelset=None, num_iters=20,
     animate_delay : int, optional
         The number of delay between frames.
     """
-    import matplotlib.pyplot as ppl
-    
+    from mayavi import mlab
+
     if levelset is not None:
         msnake.levelset = levelset
 

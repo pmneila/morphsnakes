@@ -27,6 +27,7 @@ lib64/
 parts/
 sdist/
 var/
+output/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -56,16 +57,6 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-local_settings.py
-
-# Flask instance folder
-instance/
-
-# Scrapy stuff:
-.scrapy
-
 # Sphinx documentation
 docs/_build/
 
@@ -93,6 +84,11 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# PyCharm
+.idea/
+# Dropbox sync
+.dropbox.attr
 
 
 ### Linux ###
@@ -134,4 +130,3 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-

@@ -1,7 +1,10 @@
 # Morphological Snakes
 
+<!-- TODO: change this bagues for your own one associated for upstream -->
 [![Build Status](https://travis-ci.org/Borda/morph-snakes.svg?branch=master)](https://travis-ci.org/Borda/morph-snakes)
-[![CircleCI](https://circleci.com/gh/Borda/morph-snakes.svg?style=svg)](https://circleci.com/gh/Borda/morph-snakes)
+[![codecov](https://codecov.io/gh/Borda/morph-snakes/branch/master/graph/badge.svg)](https://codecov.io/gh/Borda/morph-snakes)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fc7cd38998a74f25a7aecae44173dab0)](https://www.codacy.com/app/Borda/morph-snakes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Borda/morph-snakes&amp;utm_campaign=Badge_Grade)
+[![Code Health](https://landscape.io/github/Borda/morph-snakes/master/landscape.svg?style=flat)](https://landscape.io/github/Borda/morph-snakes/master)
 
 The **Morphological Snakes** are a family of related methods for image-guided
 evolution of curves and surfaces represented as a level-set of an embedding
