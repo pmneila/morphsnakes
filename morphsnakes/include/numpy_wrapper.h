@@ -2,7 +2,7 @@
 #ifndef _NUMPY_WRAPPER_H
 #define _NUMPY_WRAPPER_H
 
-#include "morphsnakes/morphsnakes.h"
+#include "morphsnakes.h"
 #include "pyarraymodule.h"
 
 #include <stdexcept>

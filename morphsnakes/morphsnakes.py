@@ -32,8 +32,6 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import binary_dilation, binary_erosion
 from scipy.ndimage import gaussian_filter, gaussian_gradient_magnitude
-from mayavi import mlab
-
 
 class FCycle(object):
     
@@ -384,8 +382,8 @@ def evolve_visual3d(msnake, fig=None, levelset=None, num_iters=20,
     animate_delay : int, optional
         The number of delay between frames.
     """
-    import matplotlib.pyplot as ppl
-    
+    from mayavi import mlab
+
     if levelset is not None:
         msnake.levelset = levelset
 

@@ -20,15 +20,15 @@ struct Operator;
 template<>
 struct Operator<2>
 {
-    static constexpr OperatorDescriptor<4, 2> curvature  = {
-        {{0, 8},
-        {1, 7},
-        {2, 6},
-        {3, 5}}
+    static constexpr OperatorDescriptor<4, 2> curvature = {
+        { std::array<int, 2> {0, 8},
+          std::array<int, 2> {1, 7},
+          std::array<int, 2> {2, 6},
+          std::array<int, 2> {3, 5} }
     };
 
     static constexpr OperatorDescriptor<1, 8> dilate_erode = {
-        {{0, 1, 2, 3, 5, 6, 7, 8}}
+        { std::array<int, 8> {0, 1, 2, 3, 5, 6, 7, 8} }
     };
 };
 
@@ -38,23 +38,23 @@ constexpr OperatorDescriptor<1, 8> Operator<2>::dilate_erode;
 template<>
 struct Operator<3>
 {
-    static constexpr OperatorDescriptor<9, 8> curvature  = {
-        {{6, 7, 8, 12, 14, 18, 19, 20},
-        {9, 10, 11, 12, 14, 15, 16, 17},
-        {0, 1, 2, 12, 14, 24, 25, 26},
-        {0, 4, 8, 9, 17, 18, 22, 26},
-        {3, 4, 5, 12, 14, 21, 22, 23},
-        {2, 4, 6, 11, 15, 20, 22, 24},
-        {2, 5, 8, 10, 16, 18, 21, 24},
-        {1, 4, 7, 10, 16, 19, 22, 25},
-        {0, 3, 6, 10, 16, 20, 23, 26}
+    static constexpr OperatorDescriptor<9, 8> curvature = {
+        { std::array<int, 8> {6, 7, 8, 12, 14, 18, 19, 20},
+          std::array<int, 8> {9, 10, 11, 12, 14, 15, 16, 17},
+          std::array<int, 8> {0, 1, 2, 12, 14, 24, 25, 26},
+          std::array<int, 8> {0, 4, 8, 9, 17, 18, 22, 26},
+          std::array<int, 8> {3, 4, 5, 12, 14, 21, 22, 23},
+          std::array<int, 8> {2, 4, 6, 11, 15, 20, 22, 24},
+          std::array<int, 8> {2, 5, 8, 10, 16, 18, 21, 24},
+          std::array<int, 8> {1, 4, 7, 10, 16, 19, 22, 25},
+          std::array<int, 8> {0, 3, 6, 10, 16, 20, 23, 26}
         }
     };
 
     static constexpr OperatorDescriptor<1, 26> dilate_erode = {
-        {{0, 1, 2, 3, 4, 5, 6, 7, 8,
-          9,10,11,12,14,15,16,17,
-         18,19,20,21,22,23,24,25,26}}
+        { std::array<int, 26> {0,  1,  2,  3,  4,  5,  6,  7, 8,
+                               9, 10, 11, 12, 14, 15, 16, 17, 18,
+                               19, 20, 21, 22, 23, 24, 25, 26} }
     };
 };
 

@@ -97,15 +97,15 @@ class NeighborOffsets<2>
 {
 public:
     static const int num_neighbors = 9;
-    
+
     typedef Position<2>::Coord Coord;
     typedef std::array<Coord, num_neighbors> CoordOffsets;
     typedef std::array<int, num_neighbors> LinearOffsets;
     
     static constexpr CoordOffsets coord_offsets = {
-        {{-1, -1}, {-1, 0}, {-1, 1},
-        {0, -1}, {0,0}, {0, 1},
-        {1, -1}, {1, 0}, {1, 1}}
+         {Coord {-1, -1}, Coord {-1, 0}, Coord {-1, 1},
+          Coord {0, -1}, Coord {0, 0}, Coord {0, 1},
+          Coord {1, -1}, Coord {1, 0}, Coord {1, 1}}
     };
     LinearOffsets linear_offsets;
 
@@ -130,15 +130,15 @@ public:
     typedef std::array<int, num_neighbors> LinearOffsets;
     
     static constexpr CoordOffsets coord_offsets = {
-        {{-1, -1, -1}, {-1, -1, 0}, {-1, -1, 1},
-         {-1, 0, -1}, {-1, 0, 0}, {-1, 0, 1},
-         {-1, 1, -1}, {-1, 1, 0}, {-1, 1, 1},
-         {0, -1, -1}, {0, -1, 0}, {0, -1, 1},
-         {0, 0, -1}, {0, 0, 0}, {0, 0, 1},
-         {0, 1, -1}, {0, 1, 0}, {0, 1, 1},
-         {1, -1, -1}, {1, -1, 0}, {1, -1, 1},
-         {1, 0, -1}, {1, 0, 0}, {1, 0, 1},
-         {1, 1, -1}, {1, 1, 0}, {1, 1, 1}}
+        {Coord {-1, -1, -1}, Coord {-1, -1, 0}, Coord {-1, -1, 1},
+         Coord {-1, 0, -1}, Coord {-1, 0, 0}, Coord {-1, 0, 1},
+         Coord {-1, 1, -1}, Coord {-1, 1, 0}, Coord {-1, 1, 1},
+         Coord {0, -1, -1}, Coord {0, -1, 0}, Coord {0, -1, 1},
+         Coord {0, 0, -1}, Coord {0, 0, 0}, Coord {0, 0, 1},
+         Coord {0, 1, -1}, Coord {0, 1, 0}, Coord {0, 1, 1},
+         Coord {1, -1, -1}, Coord {1, -1, 0}, Coord {1, -1, 1},
+         Coord {1, 0, -1}, Coord {1, 0, 0}, Coord {1, 0, 1},
+         Coord {1, 1, -1}, Coord {1, 1, 0}, Coord {1, 1, 1}}
     };
     LinearOffsets linear_offsets;
 

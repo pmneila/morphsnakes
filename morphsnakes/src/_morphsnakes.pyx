@@ -13,7 +13,7 @@ cimport numpy as np
 
 np.import_array()
 
-cdef extern from "morphsnakes/morphsnakes.h" namespace "morphsnakes":
+cdef extern from "morphsnakes.h" namespace "morphsnakes":
     cdef cppclass NDImage_double_2 "morphsnakes::NDImage<double, 2>":
         pass
     

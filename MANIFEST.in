@@ -1,6 +1,6 @@
 include morphsnakes/*.py
 
-include include/morphsnakes/*.h
+include morphsnakes/include/*.h
 include morphsnakes/src/*.h
 include morphsnakes/src/*.cpp
 include morphsnakes/src/_morphsnakes.pyx

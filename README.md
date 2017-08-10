@@ -1,6 +1,7 @@
 # Morphological Snakes
 
 [![Build Status](https://travis-ci.org/Borda/morph-snakes.svg?branch=master)](https://travis-ci.org/Borda/morph-snakes)
+[![codecov](https://codecov.io/gh/Borda/morph-snakes/branch/master/graph/badge.svg)](https://codecov.io/gh/Borda/morph-snakes)
 [![CircleCI](https://circleci.com/gh/Borda/morph-snakes.svg?style=svg)](https://circleci.com/gh/Borda/morph-snakes)
 
 The **Morphological Snakes** are a family of related methods for image-guided

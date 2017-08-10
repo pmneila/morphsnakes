@@ -13,11 +13,11 @@ from Cython.Build import cythonize
 import numpy
 from distutils.extension import Extension
 
-extra_compile_args = ["-std=c++11"]
+extra_compile_args = ['-c', '--std=c++11']
 
 # Fix a problem with OSX
 if sys.platform == 'darwin':
-    extra_compile_args.append("-stdlib=libc++")
+    extra_compile_args.append("--stdlib=libc++")
     cur_target = os.environ.get('MACOSX_DEPLOYMENT_TARGET')
     if cur_target is None:
         os.environ['MACOSX_DEPLOYMENT_TARGET'] = "10.7"
@@ -31,7 +31,7 @@ morphsnakes_module = Extension(
     ],
     language="c++",
     extra_compile_args=extra_compile_args,
-    include_dirs=[numpy_include_dir, "include"]
+    include_dirs=[numpy_include_dir, os.path.join('morphsnakes', 'include')]
 )
 
 setup(name="MorphSnakes",
