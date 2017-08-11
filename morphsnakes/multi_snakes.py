@@ -1,4 +1,5 @@
 """
+Simple extension of having multiple non-overlapping snakes in single image
 
 Copyright (C) 2014-2017 Jiri Borovec <jiri.borovec@fel.cvut.cz>
 """
@@ -7,7 +8,6 @@ import os
 import logging
 
 import numpy as np
-import tqdm
 
 import morphsnakes
 
@@ -17,6 +17,7 @@ DEFAULT_PARAMS = dict(smoothing=1, lambda1=1, lambda2=1)
 
 class MultiMorphSnakes(object):
     """
+    An extension of having multiple non-overlapping snakes in single image
 
     >>> np.random.seed(0)
     >>> img = np.random.random((15, 15))
@@ -65,6 +66,13 @@ class MultiMorphSnakes(object):
         elif len(list_params) == 1 and len(inits) > 1:
             list_params = [list_params[0] for lb in inits]
 
+        assert len(inits) == len(list_snakes), \
+            'not match - inits: %i and snakes: %i' \
+            % (len(inits), len(list_snakes))
+        assert len(list_snakes) == len(list_params), \
+            'not match - snakes: %i and params: %i' \
+            % (len(list_snakes), len(list_snakes))
+
         self._snakes = []
         for lb, snake, params in zip(inits, list_snakes, list_params):
             levelset = (init_mask == lb)
@@ -94,12 +102,8 @@ class MultiMorphSnakes(object):
 
     def run(self, nb_iters):
         """ Run several nb_iters of the morphological Chan-Vese method."""
-        tqdm_bar = tqdm.tqdm(total=nb_iters)
         for i in range(nb_iters):
             self.step()
-            tqdm_bar.update()
-
-
 
 # levelset = circle_levelset(img.shape, (80, 170), 25)
 # macwe = morphsnakes.MorphACWE(levelset, img, smoothing=3,

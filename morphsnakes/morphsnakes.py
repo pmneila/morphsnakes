@@ -26,6 +26,7 @@ See test.py for examples of usage.
 """
 __author__ = "P. Márquez Neila <p.mneila@upm.es>"
 
+import logging
 from itertools import cycle
 
 import tqdm
@@ -196,10 +197,8 @@ class MorphACWE(object):
     
     def run(self, nb_iters):
         """Run several nb_iters of the morphological Chan-Vese method."""
-        tqdm_bar = tqdm.tqdm(total=nb_iters)
         for i in range(nb_iters):
             self.step()
-            tqdm_bar.update()
     
 
 class MorphGAC(object):
@@ -308,10 +307,8 @@ class MorphGAC(object):
     
     def run(self, nb_iters):
         """Run several nb_iters of the morphological snakes method."""
-        tqdm_bar = tqdm.tqdm(total=nb_iters)
         for i in range(nb_iters):
             self.step()
-            tqdm_bar.update()
     
 
 def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None):
@@ -399,15 +396,18 @@ def evolve_visual3d(msnake, fig=None, levelset=None, num_iters=20,
         fig = mlab.gcf()
     mlab.clf()
     src = mlab.pipeline.scalar_field(msnake.data)
-    mlab.pipeline.image_plane_widget(src, plane_orientation='x_axes', colormap='gray')
+    mlab.pipeline.image_plane_widget(src, plane_orientation='x_axes',
+                                     colormap='gray')
     cnt = mlab.contour3d(msnake.levelset, contours=[0.5])
     
     @mlab.animate(ui=animate_ui, delay=animate_delay)
     def anim():
+        tqdm_bar = tqdm.tqdm(total=num_iters)
         for i in range(num_iters):
             msnake.step()
             cnt.mlab_source.scalars = msnake.levelset
-            print("Iteration %i/%i..." % (i + 1, num_iters))
+            # logging.debug("Iteration %i/%i..." % (i + 1, num_iters))
+            tqdm_bar.update()
             yield
     
     anim()
