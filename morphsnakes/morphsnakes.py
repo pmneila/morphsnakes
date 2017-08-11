@@ -28,10 +28,12 @@ __author__ = "P. Márquez Neila <p.mneila@upm.es>"
 
 from itertools import cycle
 
+import tqdm
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.ndimage import binary_dilation, binary_erosion
 from scipy.ndimage import gaussian_filter, gaussian_gradient_magnitude
+
 
 class FCycle(object):
     
@@ -159,7 +161,7 @@ class MorphACWE(object):
                         doc="The level set embedding function (u).")
     
     def step(self):
-        """Perform a single step of the morphological Chan-Vese evolution."""
+        """ Perform a single step of the morphological Chan-Vese evolution."""
         # Assign attributes to local variables for convenience.
         u = self._u
         
@@ -194,8 +196,10 @@ class MorphACWE(object):
     
     def run(self, nb_iters):
         """Run several nb_iters of the morphological Chan-Vese method."""
+        tqdm_bar = tqdm.tqdm(total=nb_iters)
         for i in range(nb_iters):
             self.step()
+            tqdm_bar.update()
     
 
 class MorphGAC(object):
@@ -302,10 +306,12 @@ class MorphGAC(object):
         
         self._u = res
     
-    def run(self, iterations):
-        """Run several iterations of the morphological snakes method."""
-        for i in range(iterations):
+    def run(self, nb_iters):
+        """Run several nb_iters of the morphological snakes method."""
+        tqdm_bar = tqdm.tqdm(total=nb_iters)
+        for i in range(nb_iters):
             self.step()
+            tqdm_bar.update()
     
 
 def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None):
@@ -346,16 +352,18 @@ def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None
     plt.pause(0.001)
     
     # Iterate.
+    tqdm_bar = tqdm.tqdm(total=num_iters)
     for i in range(num_iters):
         # Evolve.
         msnake.step()
         
         # Update figure.
-        del ax1.collections[0]
-        ax1.contour(msnake.levelset, [0.5], colors='r')
+        del ax1.collections[:]
+        ax1.contour(msnake.levelset, colors='r')
         ax_u.set_data(msnake.levelset)
         fig.canvas.draw()
         #plt.pause(0.001)
+        tqdm_bar.update()
     
     # Return the last levelset.
     return msnake.levelset

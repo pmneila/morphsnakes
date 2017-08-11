@@ -11,7 +11,7 @@ from scipy.ndimage import imread
 from matplotlib import pyplot as plt
 
 sys.path += [os.path.abspath('.'), os.path.abspath('..')]  # Add path to root
-from morphsnakes.morphsnakes import MorphGAC, MorphACWE
+from morphsnakes.cmorphsnakes import MorphGAC, MorphACWE
 from morphsnakes.morphsnakes import gborders, evolve_visual, evolve_visual3d
 import morphsnakes.multi_snakes as multi_ms
 
@@ -50,18 +50,18 @@ def test_nodule():
     logging.info('running: test_nodule...')
     # Load the image.
     img = imread(PATH_IMG_NODULE)[..., 0] / 255.0
-
+    
     # g(I)
     gI = gborders(img, alpha=1000, sigma=5.48)
-
+    
     # Morphological GAC. Initialization of the level-set.
     levelset = circle_levelset(img.shape, (100, 126), 20)
     mgac = MorphGAC(levelset, gI, smoothing=1, threshold=0.31, balloon=1)
-
+    
     # Visual evolution.
     fig = plt.figure()
     evolve_visual(mgac, fig, num_iters=45, background=img)
-    fig.savefig(os.path.join(PATH_OUTPUT, 'morphsnakes_nodule.png'))
+    fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_nodule.png'))
     plt.close(fig)
 
 
@@ -70,44 +70,44 @@ def test_starfish():
     # Load the image.
     imgcolor = imread(PATH_IMG_STARFISH) / 255.0
     img = rgb2gray(imgcolor)
-
+    
     # g(I)
     gI = gborders(img, alpha=1000, sigma=2)
-
+    
     # Morphological GAC. Initialization of the level-set.
     levelset = circle_levelset(img.shape, (163, 137), 135)
     mgac = MorphGAC(levelset, gI, smoothing=2, threshold=0.3, balloon=-1)
-
+    
     # Visual evolution.
     fig = plt.figure()
     evolve_visual(mgac, fig, num_iters=100, background=imgcolor)
-    fig.savefig(os.path.join(PATH_OUTPUT, 'morphsnakes_starfish.png'))
+    fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_starfish.png'))
     plt.close(fig)
 
 
 def test_lakes():
     logging.info('running: test_lakes...')
     # Load the image.
-    imgcolor = imread(PATH_IMG_LAKES) / 255.0
+    imgcolor = imread(PATH_IMG_LAKES)/255.0
     img = rgb2gray(imgcolor)
-
+    
     # MorphACWE does not need g(I)
-
+    
     # Morphological ACWE. Initialization of the level-set.
     levelset = circle_levelset(img.shape, (80, 170), 25)
     macwe = MorphACWE(levelset, img, smoothing=3, lambda1=1, lambda2=1)
-
+    
     # Visual evolution.
     fig = plt.figure()
-    evolve_visual(macwe, fig, num_iters=150, background=imgcolor)
-    fig.savefig(os.path.join(PATH_OUTPUT, 'morphsnakes_lakes.png'))
+    evolve_visual(macwe, fig, num_iters=200, background=imgcolor)
+    fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_lakes.png'))
     plt.close(fig)
 
 
 def test_multi_lakes():
     logging.info('running: test_multi_lakes...')
     # Load the image.
-    imgcolor = imread(PATH_IMG_LAKES) / 255.0
+    imgcolor = imread(PATH_IMG_LAKES)/255.0
     img = rgb2gray(imgcolor)
 
     # MorphACWE does not need g(I)
@@ -124,8 +124,8 @@ def test_multi_lakes():
 
     # Visual evolution.
     fig = plt.figure()
-    evolve_visual(ms, fig, num_iters=150, background=imgcolor)
-    fig.savefig(os.path.join(PATH_OUTPUT, 'morphsnakes_multi_lakes.png'))
+    evolve_visual(ms, fig, num_iters=200, background=imgcolor)
+    fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_multi_lakes.png'))
     plt.close(fig)
 
 
@@ -133,11 +133,11 @@ def sample_confocal3d():
     logging.info('running: sample_confocal3d...')
     # Load the image.
     img = np.load(PATH_ARRAY_CONFOCAL)
-
+    
     # Morphological ACWE. Initialization of the level-set.
     levelset = circle_levelset(img.shape, (30, 50, 80), 25)
     macwe = MorphACWE(levelset, img, smoothing=1, lambda1=1, lambda2=2)
-
+    
     # Visual evolution.
     evolve_visual3d(macwe, num_iters=150, animate_ui=False, animate_delay=10)
 

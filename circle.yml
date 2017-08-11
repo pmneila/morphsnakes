@@ -8,7 +8,7 @@ dependencies:
   cache_directories:
     - "~/.local"
   pre:
-    - sudo apt-get install tk-dev
+    - sudo apt-get install tk tk-dev
     - sudo apt-get install pkg-config
     - sudo apt-get install python-dev
     - sudo apt-get install python-tk
@@ -27,5 +27,6 @@ dependencies:
 test:
   pre:
     - mkdir output
+    - unset DISPLAY
   override:
-    - pytest tests/tests.py --doctest-modules --junitxml=$CIRCLE_TEST_REPORTS/junit/pytest.xml
+    - unset DISPLAY && pytest tests/*.py -v --doctest-modules --junitxml=$CIRCLE_TEST_REPORTS/junit/pytest.xml

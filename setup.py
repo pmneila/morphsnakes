@@ -13,7 +13,7 @@ from Cython.Build import cythonize
 import numpy
 from distutils.extension import Extension
 
-extra_compile_args = ['-c', '--std=c++11']
+extra_compile_args = ['-std=c++11']
 
 # Fix a problem with OSX
 if sys.platform == 'darwin':
@@ -35,14 +35,17 @@ morphsnakes_module = Extension(
 )
 
 setup(name="MorphSnakes",
-    version="1.0.0",
+    version="1.0.1",
     description="Morphological Snakes",
     author="Pablo Márquez Neila",
     author_email="pablo.marquezneila@epfl.ch",
-    url="https://github.com/pmneila/morphsnakes",
+    url="https://github.com/borda/morphsnakes",
     license="BSD 3-clause",
     long_description="""
-    Morphological Snakes
+    The Morphological Snakes are a family of related methods for image-guided 
+    evolution of curves and surfaces represented as a level-set of an embedding 
+    function. They have application in several computer vision areas, 
+    such as tracking and image segmentation.
     """,
     classifiers=[
         "Development Status :: 4 - Beta",

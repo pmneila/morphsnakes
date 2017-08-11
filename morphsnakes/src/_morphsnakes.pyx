@@ -5,9 +5,9 @@
 # from libcpp.vector cimport vector
 import numpy as np
 
-# Define PY_ARRAY_UNIQUE_SYMBOL
-cdef extern from "pyarray_symbol.h":
-    pass
+# # Define PY_ARRAY_UNIQUE_SYMBOL
+# cdef extern from "pyarray_symbol.h":
+#     pass
 
 cimport numpy as np
 

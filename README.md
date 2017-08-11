@@ -79,6 +79,10 @@ The images below show some working examples of the Morphological Snakes.
 ![anim_europe](examples/anim_europe.gif)
 ![anim_dendrite](examples/anim_dendrite.gif)
 
+### Multiple-snakes
+
+![multi_lakes](examples/figure_multi_lakes.png)
+
 ## Implementation
 
 The code provided is a Python implementation of the Morphological Snakes
