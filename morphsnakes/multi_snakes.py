@@ -102,8 +102,13 @@ class MultiMorphSnakes(object):
 
     def run(self, nb_iters):
         """ Run several nb_iters of the morphological Chan-Vese method."""
+        last_segm = np.array(self.levelset)
         for i in range(nb_iters):
             self.step()
+            if np.array_equal(last_segm, self.levelset):
+                logging.info('no change after %i iterations', i)
+                break
+            last_segm = np.array(self.levelset)
 
 # levelset = circle_levelset(img.shape, (80, 170), 25)
 # macwe = morphsnakes.MorphACWE(levelset, img, smoothing=3,

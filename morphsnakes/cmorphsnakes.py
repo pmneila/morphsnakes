@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 from morphsnakes import _morphsnakes as _ms
 
+import logging
 import numpy as np
 
 class MorphACWE(object):
@@ -35,12 +36,17 @@ class MorphACWE(object):
     def step(self):
         """Perform a single step of the morphological Chan-Vese evolution."""
         self.cmorphacwe.step()
-    
-    def run(self, iterations):
-        """Run several iterations of the morphological Chan-Vese method."""
-        for _ in range(iterations):
+
+    def run(self, nb_iters):
+        """Run several nb_iters of the morphological Chan-Vese method."""
+        last_segm = np.array(self.levelset)
+        for i in range(nb_iters):
             self.step()
-    
+            if np.array_equal(last_segm, self.levelset):
+                logging.info('no change after %i nb_iters', i)
+                break
+            last_segm = np.array(self.levelset)
+
 
 class MorphGAC(object):
     
@@ -76,7 +82,12 @@ class MorphGAC(object):
         """Perform a single step of the morphological Chan-Vese evolution."""
         self.cmorphgac.step()
     
-    def run(self, iterations):
-        """Run several iterations of the morphological Chan-Vese method."""
-        for _ in range(iterations):
+    def run(self, nb_iters):
+        """Run several nb_iters of the morphological Chan-Vese method."""
+        last_segm = np.array(self.levelset)
+        for i in range(nb_iters):
             self.step()
+            if np.array_equal(last_segm, self.levelset):
+                logging.info('no change after %i nb_iters', i)
+                break
+            last_segm = np.array(self.levelset)
