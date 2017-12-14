@@ -322,7 +322,7 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
     else:
         ax1.imshow(background, cmap=ppl.cm.gray)
     ax1.contour(msnake.levelset, [0.5], colors='r')
-    
+     
     ax2 = fig.add_subplot(1,2,2)
     ax_u = ax2.imshow(msnake.levelset)
     ppl.pause(0.001)
@@ -334,12 +334,23 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
         
         # Update figure.
         del ax1.collections[0]
-        ax1.contour(msnake.levelset, [0.5], colors='r')
+        cs = ax1.contour(msnake.levelset, [0.5], colors='r')
+        p = cs.collections[0].get_paths()[0]
+        v = p.vertices
+        x = v[:,0]
+        y = v[:,1]
         ax_u.set_data(msnake.levelset)
+        import numpy
+        xarray = numpy.array(x)
+        yarray = numpy.array(y)
+        data = numpy.array([xarray, yarray])
+        data = data.T
+        with open("./countor.csv", 'w+') as datafile_id:
+         numpy.savetxt(datafile_id, data, fmt=['%d','%d'], delimiter=",")
         fig.canvas.draw()
         #ppl.pause(0.001)
     
-    # Return the last levelset.
+    # Return the last levelset
     return msnake.levelset
 
 def evolve_visual3d(msnake, levelset=None, num_iters=20):
