@@ -359,8 +359,7 @@ def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None
     plt.pause(0.001)
     
     # Iterate.
-    tqdm_bar = tqdm.tqdm(total=num_iters)
-    for i in range(num_iters):
+    for _ in tqdm.tqdm(range(num_iters)):
         # Evolve.
         msnake.step()
         
@@ -370,7 +369,6 @@ def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None
         ax_u.set_data(msnake.levelset)
         fig.canvas.draw()
         #plt.pause(0.001)
-        tqdm_bar.update()
     
     # Return the last levelset.
     return msnake.levelset

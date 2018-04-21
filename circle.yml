@@ -1,23 +1,21 @@
 machine:
   python:
-    version: 2.7.9
-  post:
-    - pyenv global 2.7.9
+    version: 3.5.2
+#  post:
+#    - pyenv global 3.5.2
+  environment:
+#    - unset DISPLAY
+    DISPLAY: ''
 
 dependencies:
   cache_directories:
     - "~/.local"
   pre:
-    - sudo apt-get install tk tk-dev
+    - sudo apt-get update
+    - sudo apt-get install tk-dev
     - sudo apt-get install pkg-config
     - sudo apt-get install python-dev
     - sudo apt-get install python-tk
-#    - sudo apt-get update
-#    - sudo apt-get install vtk6
-#    - sudo apt-get install tcl-vtk
-#    - sudo apt-get install libvtk6
-#    - sudo apt-get install libvtk6-dev
-#    - sudo apt-get install python-vtk
     - pip install --upgrade setuptools
   override:
     - pip install -r requirements.txt
@@ -27,6 +25,9 @@ dependencies:
 test:
   pre:
     - mkdir output
-    - unset DISPLAY
+    - mkdir -p $CIRCLE_TEST_REPORTS
   override:
-    - unset DISPLAY && pytest tests/*.py -v --doctest-modules --junitxml=$CIRCLE_TEST_REPORTS/junit/pytest.xml
+    - coverage run --source morphsnakes -m py.test tests/test*.py -v --doctest-modules --junitxml=$CIRCLE_TEST_REPORTS/junit/pytest.xml
+  post:
+    - coverage report && coverage xml -o $CIRCLE_TEST_REPORTS/coverage.xml
+    - codecov  # public repository on Travis CI

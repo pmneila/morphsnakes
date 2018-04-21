@@ -11,18 +11,15 @@ sudo: required
 
 python:
   - 2.7
+  - 3.4
   - 3.5
+  - 3.6
 
 # See http://docs.travis-ci.com/user/caching/#pip-cache
 cache: pip
 
 before_install:
-#  - sudo apt-get update
-#  - sudo apt-get install vtk6
-#  - sudo apt-get install tcl-vtk
-#  - sudo apt-get install libvtk6
-#  - sudo apt-get install libvtk6-dev
-#  - sudo apt-get install python-vtk
+
   - pip install --upgrade pip
 
 install:
@@ -35,8 +32,7 @@ before_script:
 
 script:
   - nosetests -v --exe --with-doctest --with-xunit --with-coverage --cover-package=morphsnakes
-  - codecov
 
 after_success:
-  - codecov -t dd9e3be7-daad-44a6-871c-17d061159fe1
+  - codecov  # public repository on Travis CI
   - coverage report
