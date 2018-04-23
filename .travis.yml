@@ -32,6 +32,7 @@ before_script:
 
 script:
   - nosetests -v --exe --with-doctest --with-xunit --with-coverage --cover-package=morphsnakes
+  # add testing tests/tests.cpp
 
 after_success:
   - codecov  # public repository on Travis CI

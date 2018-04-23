@@ -28,6 +28,7 @@ test:
     - mkdir -p $CIRCLE_TEST_REPORTS
   override:
     - coverage run --source morphsnakes -m py.test tests/test*.py -v --doctest-modules --junitxml=$CIRCLE_TEST_REPORTS/junit/pytest.xml
+    # add testing tests/tests.cpp
   post:
     - coverage report && coverage xml -o $CIRCLE_TEST_REPORTS/coverage.xml
     - codecov  # public repository on Travis CI

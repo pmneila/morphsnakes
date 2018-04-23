@@ -26,9 +26,7 @@ numpy_include_dir = numpy.get_include()
 
 morphsnakes_module = Extension(
     "morphsnakes._morphsnakes",
-    [
-        "morphsnakes/src/_morphsnakes.pyx",
-    ],
+    ["morphsnakes/src/_morphsnakes.pyx"],
     language="c++",
     extra_compile_args=extra_compile_args,
     include_dirs=[numpy_include_dir, os.path.join('morphsnakes', 'include')]
@@ -39,7 +37,7 @@ setup(name="MorphSnakes",
     description="Morphological Snakes",
     author="Pablo Márquez Neila",
     author_email="pablo.marquezneila@epfl.ch",
-    url="https://github.com/borda/morphsnakes",
+    url="https://github.com/pmneila/morphsnakes",
     license="BSD 3-clause",
     long_description="""
     The Morphological Snakes are a family of related methods for image-guided 

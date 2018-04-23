@@ -1,4 +1,3 @@
-
 CMakeLists.txt.user
 morphsnakes/src/_morphsnakes.cpp
 
@@ -28,6 +27,7 @@ parts/
 sdist/
 var/
 output/
+temp/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -136,4 +136,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# PyCharm
 .idea/
+.dropbox.attr

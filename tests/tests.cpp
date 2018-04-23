@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "morphsnakes/morphsnakes.h"
+#include "morphsnakes/include/morphsnakes.h"
 
 #define cimg_display 0
 #include "CImg.h"
@@ -58,11 +58,11 @@ ms::NDImage<T, 2> cimg2ndimage(CImg<T>& img)
 void lakes()
 {
     // Load image
-    CImg<double> img = rgb2gray(CImg<double>("../testimages/lakes3.jpg")) / 255.0;
+    CImg<double> img = rgb2gray(CImg<double>("../images/lakes3.jpg")) / 255.0;
 
     // Initialize embedding function
     auto embedding = circle_levelset(img.height(), img.width(), {80, 170}, 25);
-    (embedding * 255).save_png("lakes_begin.png");
+    (embedding * 255).save_png("../output/lakes_begin.png");
 
     // Morphological ACWE
     ms::MorphACWE<double, 2> macwe(cimg2ndimage(embedding), cimg2ndimage(img), 3);
@@ -70,17 +70,17 @@ void lakes()
         macwe.step();
 
     // Save results
-    (embedding * 255).save_png("lakes_end.png");
+    (embedding * 255).save_png("../output/lakes_end.png");
 }
 
 void starfish()
 {
     // Load image
-    CImg<double> img = rgb2gray(CImg<double>("../testimages/seastar2.png")) / 255.0;
+    CImg<double> img = rgb2gray(CImg<double>("../images/seastar2.png")) / 255.0;
 
     // Initialize embedding function
     auto embedding = circle_levelset(img.height(), img.width(), {163, 137}, 135);
-    (embedding * 255).save_png("seastar_begin.png");
+    (embedding * 255).save_png("../output/seastar_begin.png");
     
     // Compute borders and gradients
     auto gimg = gborders(img, 1000.0, 2.0);
@@ -93,7 +93,7 @@ void starfish()
         mgac.step();
     
     // Save results
-    (embedding * 255).save_png("seastar_end.png");
+    (embedding * 255).save_png("../output/seastar_end.png");
 }
 
 int main()

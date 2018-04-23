@@ -14,36 +14,16 @@ sys.path += [os.path.abspath('.'), os.path.abspath('..')]  # Add path to root
 from morphsnakes.cmorphsnakes import MorphGAC, MorphACWE
 from morphsnakes.morphsnakes import gborders, evolve_visual, evolve_visual3d
 import morphsnakes.multi_snakes as multi_ms
-
-
-def find_path(path):
-    for i in range(3):
-        if not os.path.exists(path):
-            path = os.path.join('..', path)
-    return path
+from tests.test_python import rgb2gray, circle_levelset, find_path
 
 
 PATH_IMAGES = find_path('images')
 assert os.path.exists(PATH_IMAGES)
 PATH_OUTPUT = find_path('output')
-assert os.path.exists(PATH_OUTPUT)
 PATH_IMG_NODULE = os.path.join(PATH_IMAGES, 'mama07ORI.bmp')
 PATH_IMG_STARFISH = os.path.join(PATH_IMAGES, 'seastar2.png')
 PATH_IMG_LAKES = os.path.join(PATH_IMAGES, 'lakes3.jpg')
 PATH_ARRAY_CONFOCAL = os.path.join(PATH_IMAGES, 'confocal.npy')
-
-
-def rgb2gray(img):
-    """Convert a RGB image to gray scale."""
-    return 0.2989 * img[:, :, 0] + 0.587 * img[:, :, 1] + 0.114 * img[:, :, 2]
-
-
-def circle_levelset(shape, center, sqradius):
-    """Build a binary function with a circle as the 0.5-levelset."""
-    grid = np.mgrid[list(map(slice, shape))].T - center
-    phi = sqradius - np.sqrt(np.sum((grid.T) ** 2, 0))
-    u = np.float_(phi > 0)
-    return u
 
 
 def test_nodule():
@@ -61,6 +41,7 @@ def test_nodule():
     # Visual evolution.
     fig = plt.figure()
     evolve_visual(mgac, fig, num_iters=45, background=img)
+    assert os.path.exists(PATH_OUTPUT)
     fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_nodule.png'))
     plt.close(fig)
 
@@ -81,6 +62,7 @@ def test_starfish():
     # Visual evolution.
     fig = plt.figure()
     evolve_visual(mgac, fig, num_iters=100, background=imgcolor)
+    assert os.path.exists(PATH_OUTPUT)
     fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_starfish.png'))
     plt.close(fig)
 
@@ -100,6 +82,7 @@ def test_lakes():
     # Visual evolution.
     fig = plt.figure()
     evolve_visual(macwe, fig, num_iters=200, background=imgcolor)
+    assert os.path.exists(PATH_OUTPUT)
     fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_lakes.png'))
     plt.close(fig)
 
@@ -125,6 +108,7 @@ def test_multi_lakes():
     # Visual evolution.
     fig = plt.figure()
     evolve_visual(ms, fig, num_iters=200, background=imgcolor)
+    assert os.path.exists(PATH_OUTPUT)
     fig.savefig(os.path.join(PATH_OUTPUT, 'cmorphsnakes_multi_lakes.png'))
     plt.close(fig)
 

@@ -17,7 +17,7 @@ import morphsnakes.multi_snakes as multi_ms
 
 
 def find_path(path):
-    for i in range(3):
+    for _ in range(3):
         if not os.path.exists(path):
             path = os.path.join('..', path)
     return path

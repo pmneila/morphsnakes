@@ -3,8 +3,8 @@ Simple extension of having multiple non-overlapping snakes in single image
 
 Copyright (C) 2014-2017 Jiri Borovec <jiri.borovec@fel.cvut.cz>
 """
+__author__ = "Jiri Borovec <jiri.borovec@fel.cvut.cz>"
 
-import os
 import logging
 
 import numpy as np
@@ -123,4 +123,3 @@ class MultiMorphSnakes(object):
 #     ax1.contour(msnake.levelset, [0.5], colors='r')
 #     ax_u.set_data(msnake.levelset)
 #     fig.canvas.draw()
-
