@@ -1,0 +1,39 @@
+# vim ft=yaml
+
+# After changing this file, check it on:
+#   http://yaml-online-parser.appspot.com/
+
+# See doc/travis_notes.txt for some guidelines
+
+language: python
+
+sudo: required
+
+python:
+  - 2.7
+  - 3.4
+  - 3.5
+  - 3.6
+
+# See http://docs.travis-ci.com/user/caching/#pip-cache
+cache: pip
+
+before_install:
+
+  - pip install --upgrade pip
+
+install:
+  - pip install -r requirements.txt
+  - pip install nose>=1.3.7 coverage codecov pytest>=3.0.5
+
+before_script:
+  - python setup.py build_ext --inplace
+  - mkdir output
+
+script:
+  - nosetests -v --exe --with-doctest --with-xunit --with-coverage --cover-package=morphsnakes
+  # add testing tests/tests.cpp
+
+after_success:
+  - codecov  # public repository on Travis CI
+  - coverage report

@@ -1,0 +1,34 @@
+machine:
+  python:
+    version: 3.5.2
+#  post:
+#    - pyenv global 3.5.2
+  environment:
+#    - unset DISPLAY
+    DISPLAY: ''
+
+dependencies:
+  cache_directories:
+    - "~/.local"
+  pre:
+    - sudo apt-get update
+    - sudo apt-get install tk-dev
+    - sudo apt-get install pkg-config
+    - sudo apt-get install python-dev
+    - sudo apt-get install python-tk
+    - pip install --upgrade setuptools
+  override:
+    - pip install -r requirements.txt
+    - pip install nose>=1.3.7 coverage codecov pytest>=3.0.5
+    - python setup.py build_ext --inplace
+
+test:
+  pre:
+    - mkdir output
+    - mkdir -p $CIRCLE_TEST_REPORTS
+  override:
+    - coverage run --source morphsnakes -m py.test tests/test*.py -v --doctest-modules --junitxml=$CIRCLE_TEST_REPORTS/junit/pytest.xml
+    # add testing tests/tests.cpp
+  post:
+    - coverage report && coverage xml -o $CIRCLE_TEST_REPORTS/coverage.xml
+    - codecov  # public repository on Travis CI
