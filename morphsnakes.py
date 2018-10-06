@@ -62,7 +62,7 @@ __all__ = ['morphological_chan_vese',
           ]
 
 
-__version__ = (2,0,1)
+__version__ = (2, 0, 1)
 __version_str__ = ".".join(map(str, __version__))
 
 
