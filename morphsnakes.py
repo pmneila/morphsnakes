@@ -48,6 +48,8 @@ References
        Transactions on Image Processing, 2001, DOI:10.1109/83.902291
 
 """
+__author__ = "P. Márquez Neila <p.mneila@upm.es>"
+
 
 from itertools import cycle
 
