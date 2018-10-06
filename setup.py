@@ -5,23 +5,24 @@ try:
 except ImportError:
     from distutils.core import setup
 
+from morphsnakes import __version_str__
 
 setup(
-    name="MorphSnakes",
-    version="0.1",
+    name="morphsnakes",
+    version=__version_str__,
     description="Morphological Snakes",
     author="Pablo Márquez Neila",
-    author_email="pablo.marquezneila@epfl.ch",
+    author_email="pablomarquez@artorg.unibe.ch",
     url="https://github.com/pmneila/morphsnakes",
     license="BSD 3-clause",
     # packages=["morphsnakes"],
     py_modules=["morphsnakes"],
     requires=['numpy', 'scipy'],
     long_description="""
-    The Morphological Snakes are a family of related methods for image-guided 
+    The Morphological Snakes are a family of methods for image-guided 
     evolution of curves and surfaces represented as a level-set of an embedding 
-    function. They have application in several computer vision areas, 
-    such as tracking and image segmentation.
+    function. They have application in several Computer Vision areas, 
+    such as image segmentation and tracking.
     """,
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -31,7 +32,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Natural Language :: English",
         "Operating System :: OS Independent",
-        "Programming Language :: C++",
         "Programming Language :: Python",
         "Topic :: Multimedia :: Graphics :: 3D Modeling",
         "Topic :: Scientific/Engineering :: Image Recognition",

@@ -62,6 +62,10 @@ __all__ = ['morphological_chan_vese',
           ]
 
 
+__version__ = (2,0,0)
+__version_str__ = ".".join(map(str, __version__))
+
+
 class _fcycle(object):
 
     def __init__(self, iterable):
