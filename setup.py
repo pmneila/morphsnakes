@@ -12,7 +12,7 @@ setup(
     version=__version_str__,
     description="Morphological Snakes",
     author="Pablo Márquez Neila",
-    author_email="pablomarquez@artorg.unibe.ch",
+    author_email="pablo.marquez@artorg.unibe.ch",
     url="https://github.com/pmneila/morphsnakes",
     license="BSD 3-clause",
     # packages=["morphsnakes"],
