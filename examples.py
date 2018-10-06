@@ -136,7 +136,7 @@ def rgb2gray(img):
 
 
 def example_nodule():
-    logging.info('Running: example_nodule (Morphological GAC)...')
+    logging.info('Running: example_nodule (MorphGAC)...')
     
     # Load the image.
     img = imread(PATH_IMG_NODULE)[..., 0] / 255.0
@@ -150,7 +150,7 @@ def example_nodule():
     # Callback for visual plotting
     callback = visual_callback_2d(img)
     
-    # Morphological GAC. 
+    # MorphGAC. 
     ms.morphological_geodesic_active_contour(gimg, iterations=45, 
                                              init_level_set=init_ls,
                                              smoothing=1, threshold=0.31,
@@ -158,7 +158,7 @@ def example_nodule():
 
 
 def example_starfish():
-    logging.info('Running: example_starfish (Morphological GAC)...')
+    logging.info('Running: example_starfish (MorphGAC)...')
     
     # Load the image.
     imgcolor = imread(PATH_IMG_STARFISH) / 255.0
@@ -173,7 +173,7 @@ def example_starfish():
     # Callback for visual plotting
     callback = visual_callback_2d(imgcolor)
     
-    # Morphological GAC. 
+    # MorphGAC. 
     ms.morphological_geodesic_active_contour(gimg, iterations=100, 
                                              init_level_set=init_ls,
                                              smoothing=2, threshold=0.3,
@@ -181,7 +181,7 @@ def example_starfish():
 
 
 def example_coins():
-    logging.info('Running: example_coins (Morphological GAC)...')
+    logging.info('Running: example_coins (MorphGAC)...')
     
     # Load the image.
     img = imread(PATH_IMG_COINS) / 255.0
@@ -196,14 +196,14 @@ def example_coins():
     # Callback for visual plotting
     callback = visual_callback_2d(img)
     
-    # Morphological GAC. 
+    # MorphGAC. 
     ms.morphological_geodesic_active_contour(gimg, 230, init_ls,
                                              smoothing=1, threshold=0.69,
                                              balloon=-1, iter_callback=callback)
 
 
 def example_lakes():
-    logging.info('Running: example_lakes (Morphological Chan-Vese)...')
+    logging.info('Running: example_lakes (MorphACWE)...')
     
     # Load the image.
     imgcolor = imread(PATH_IMG_LAKES)/255.0
@@ -230,7 +230,7 @@ def example_camera():
     initialization of the level-set.
     """
     
-    logging.info('Running: example_camera (Morphological Chan-Vese)...')
+    logging.info('Running: example_camera (MorphACWE)...')
 
     # Load the image.
     img = imread(PATH_IMG_CAMERA)/255.0
@@ -245,7 +245,7 @@ def example_camera():
 
 
 def example_confocal3d():
-    logging.info('Running: example_confocal3d (Morphological Chan-Vese)...')
+    logging.info('Running: example_confocal3d (MorphACWE)...')
     
     # Load the image.
     img = np.load(PATH_ARRAY_CONFOCAL)
