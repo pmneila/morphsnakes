@@ -110,13 +110,12 @@ def visual_callback_3d(fig=None, plot_each=1):
     ax = fig.add_subplot(111, projection='3d')
     plt.pause(0.001)
     
-    counter = -1
+    counter = [-1]
 
     def callback(levelset):
 
-        nonlocal counter
-        counter += 1
-        if (counter % plot_each) != 0:
+        counter[0] += 1
+        if (counter[0] % plot_each) != 0:
             return
 
         if ax.collections:

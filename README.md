@@ -63,7 +63,7 @@ preprocessing.
 
 **MorphACWE** is much easier to setup and use than **MorphGAC**, and much more
 robust to noise. You should try using **MorphACWE** first, and only switch
-to **MorphGAC** when it is clear to you than **MorphACWE** is not suitable
+to **MorphGAC** when it is clear to you that **MorphACWE** is not suitable
 for the kind of images you are working with.
 
 ![anim_lakes](examples/anim_lakes.gif)
