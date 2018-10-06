@@ -1,8 +1,8 @@
 # Morphological Snakes
 
 [![Build Status](https://travis-ci.org/pmneila/morphsnakes.svg?branch=master)](https://travis-ci.org/pmneila/morphsnakes)
-<!-- [![codecov](https://codecov.io/gh/Borda/morph-snakes/branch/master/graph/badge.svg)](https://codecov.io/gh/Borda/morph-snakes)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/fc7cd38998a74f25a7aecae44173dab0)](https://www.codacy.com/app/Borda/morph-snakes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Borda/morph-snakes&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/pmneila/morphsnakes/branch/master/graph/badge.svg)](https://codecov.io/gh/pmneila/morphsnakes)
+<!-- [![Codacy Badge](https://api.codacy.com/project/badge/Grade/fc7cd38998a74f25a7aecae44173dab0)](https://www.codacy.com/app/Borda/morph-snakes?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Borda/morph-snakes&amp;utm_campaign=Badge_Grade)
 [![Code Health](https://landscape.io/github/Borda/morph-snakes/master/landscape.svg?style=flat)](https://landscape.io/github/Borda/morph-snakes/master) -->
 
 **morphsnakes** is an implementation of the *Morphological Snakes* for image segmentation.
