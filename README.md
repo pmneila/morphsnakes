@@ -30,7 +30,7 @@ Two *Morphological Snakes* methods are available in **morphsnakes**:
 
 ## Installation
 
-### Option 1: Copy `morphsnakes.py` to your project
+<!--### Option 1: Copy `morphsnakes.py` to your project-->
 
 All the required code is contained in [`morphsnakes.py`](morphsnakes.py). You can
 copy this file into your own project with
@@ -38,12 +38,13 @@ copy this file into your own project with
 wget https://raw.githubusercontent.com/pmneila/morphsnakes/master/morphsnakes.py
 ```
 
-### Option 2: `pip install`
+<!-- ### Option 2: `pip install`
 
 It is also possible to install **morphsnakes** with `pip`
 ```
 pip install morphsnakes
 ```
+-->
 
 ## Getting started
 
