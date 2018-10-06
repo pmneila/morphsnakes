@@ -24,17 +24,25 @@ aforementioned paper for full details.
 
 See test.py for examples of usage.
 """
-
 __author__ = "P. Márquez Neila <p.mneila@upm.es>"
 
+import os
+import logging
 from itertools import cycle
 
-import numpy as np
-from scipy import ndimage
-from scipy.ndimage import binary_dilation, binary_erosion, \
-                        gaussian_filter, gaussian_gradient_magnitude
+import matplotlib
+# in case you are running on machine without display, e.g. server
+if os.environ.get('DISPLAY', '') == '':
+    logging.warning('No display found. Using non-interactive Agg backend.')
+    matplotlib.use('Agg')
 
-class fcycle(object):
+import numpy as np
+from matplotlib import pyplot as plt
+from scipy.ndimage import binary_dilation, binary_erosion
+from scipy.ndimage import gaussian_filter, gaussian_gradient_magnitude
+
+
+class FCycle(object):
     
     def __init__(self, iterable):
         """Call functions from the iterable each time it is called."""
@@ -45,30 +53,34 @@ class fcycle(object):
         return f(*args, **kwargs)
     
 
-# SI and IS operators for 2D and 3D.
-_P2 = [np.eye(3), np.array([[0,1,0]]*3), np.flipud(np.eye(3)), np.rot90([[0,1,0]]*3)]
-_P3 = [np.zeros((3,3,3)) for i in range(9)]
+# operator_si and operator_is operators for 2D and 3D.
+_P2 = [np.eye(3), np.array([[0, 1, 0]] * 3),
+       np.flipud(np.eye(3)), np.rot90([[0, 1, 0]] * 3)]
+_P3 = [np.zeros((3, 3, 3)) for i in range(9)]
 
-_P3[0][:,:,1] = 1
-_P3[1][:,1,:] = 1
-_P3[2][1,:,:] = 1
-_P3[3][:,[0,1,2],[0,1,2]] = 1
-_P3[4][:,[0,1,2],[2,1,0]] = 1
-_P3[5][[0,1,2],:,[0,1,2]] = 1
-_P3[6][[0,1,2],:,[2,1,0]] = 1
-_P3[7][[0,1,2],[0,1,2],:] = 1
-_P3[8][[0,1,2],[2,1,0],:] = 1
+_P3[0][:, :, 1] = 1
+_P3[1][:, 1, :] = 1
+_P3[2][1, :, :] = 1
+_P3[3][:, [0, 1, 2], [0, 1, 2]] = 1
+_P3[4][:, [0, 1, 2], [2, 1, 0]] = 1
+_P3[5][[0, 1, 2], :, [0, 1, 2]] = 1
+_P3[6][[0, 1, 2], :, [2, 1, 0]] = 1
+_P3[7][[0, 1, 2], [0, 1, 2], :] = 1
+_P3[8][[0, 1, 2], [2, 1, 0], :] = 1
 
 _aux = np.zeros((0))
-def SI(u):
-    """SI operator."""
+
+
+def operator_si(u):
+    """operator_si operator."""
     global _aux
     if np.ndim(u) == 2:
         P = _P2
     elif np.ndim(u) == 3:
         P = _P3
     else:
-        raise ValueError("u has an invalid number of dimensions (should be 2 or 3)")
+        raise ValueError("u has an invalid number of dimensions "
+                         "(should be 2 or 3)")
     
     if u.shape != _aux.shape[1:]:
         _aux = np.zeros((len(P),) + u.shape)
@@ -78,15 +90,17 @@ def SI(u):
     
     return _aux.max(0)
 
-def IS(u):
-    """IS operator."""
+
+def operator_is(u):
+    """operator_is operator."""
     global _aux
     if np.ndim(u) == 2:
         P = _P2
     elif np.ndim(u) == 3:
         P = _P3
     else:
-        raise ValueError("u has an invalid number of dimensions (should be 2 or 3)")
+        raise ValueError("u has an invalid number of dimensions "
+                         "(should be 2 or 3)")
     
     if u.shape != _aux.shape[1:]:
         _aux = np.zeros((len(P),) + u.shape)
@@ -96,10 +110,12 @@ def IS(u):
     
     return _aux.min(0)
 
-# SIoIS operator.
-SIoIS = lambda u: SI(IS(u))
-ISoSI = lambda u: IS(SI(u))
-curvop = fcycle([SIoIS, ISoSI])
+
+# operator_si_o_is operator.
+operator_si_o_is = lambda u: operator_si(operator_is(u))
+operator_os_o_si = lambda u: operator_is(operator_si(u))
+curvop = FCycle([operator_si_o_is, operator_os_o_si])
+
 
 # Stopping factors (function g(I) in the paper).
 def gborders(img, alpha=1.0, sigma=1.0):
@@ -108,9 +124,11 @@ def gborders(img, alpha=1.0, sigma=1.0):
     gradnorm = gaussian_gradient_magnitude(img, sigma, mode='constant')
     return 1.0/np.sqrt(1.0 + alpha*gradnorm)
 
+
 def glines(img, sigma=1.0):
     """Stopping criterion for image black lines."""
     return gaussian_filter(img, sigma)
+
 
 class MorphACWE(object):
     """Morphological ACWE based on the Chan-Vese energy functional."""
@@ -153,13 +171,14 @@ class MorphACWE(object):
         u = self._u
         
         if u is None:
-            raise ValueError("the levelset function is not set (use set_levelset)")
+            raise ValueError("the levelset function is not set "
+                             "(use set_levelset)")
         
         data = self.data
         
         # Determine c0 and c1.
-        inside = u>0
-        outside = u<=0
+        inside = (u > 0)
+        outside = (u <= 0)
         c0 = data[outside].sum() / float(outside.sum())
         c1 = data[inside].sum() / float(inside.sum())
         
@@ -167,7 +186,8 @@ class MorphACWE(object):
         dres = np.array(np.gradient(u))
         abs_dres = np.abs(dres).sum(0)
         #aux = abs_dres * (c0 - c1) * (c0 + c1 - 2*data)
-        aux = abs_dres * (self.lambda1*(data - c1)**2 - self.lambda2*(data - c0)**2)
+        aux = abs_dres * (self.lambda1*(data - c1) ** 2 -
+                          self.lambda2*(data - c0) ** 2)
         
         res = np.copy(u)
         res[aux < 0] = 1
@@ -179,9 +199,9 @@ class MorphACWE(object):
         
         self._u = res
     
-    def run(self, iterations):
-        """Run several iterations of the morphological Chan-Vese method."""
-        for i in range(iterations):
+    def run(self, nb_iters):
+        """Run several nb_iters of the morphological Chan-Vese method."""
+        for _ in range(nb_iters):
             self.step()
     
 
@@ -241,10 +261,12 @@ class MorphGAC(object):
                         doc="The level set embedding function (u).")
     data = property(lambda self: self._data,
                         set_data,
-                        doc="The data that controls the snake evolution (the image or g(I)).")
+                        doc="The data that controls the snake evolution "
+                            "(the image or g(I)).")
     balloon = property(lambda self: self._v,
                         set_balloon,
-                        doc="The morphological balloon parameter (ν (nu, not v)).")
+                        doc="The morphological balloon parameter "
+                            "(ν (nu, not v)).")
     threshold = property(lambda self: self._theta,
                         set_threshold,
                         doc="The threshold value (θ).")
@@ -287,11 +309,11 @@ class MorphGAC(object):
     
     def run(self, iterations):
         """Run several iterations of the morphological snakes method."""
-        for i in range(iterations):
+        for _ in range(iterations):
             self.step()
     
 
-def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
+def evolve_visual(msnake, fig=None, levelset=None, num_iters=20, background=None):
     """
     Visual evolution of a morphological snake.
     
@@ -299,6 +321,8 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
     ----------
     msnake : MorphGAC or MorphACWE instance
         The morphological snake solver.
+    fig: object, optional
+        Handles to actual figure.
     levelset : array-like, optional
         If given, the levelset of the solver is initialized to this. If not
         given, the evolution will use the levelset already set in msnake.
@@ -308,27 +332,26 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
         If given, background will be shown behind the contours instead of
         msnake.data.
     """
-    from matplotlib import pyplot as ppl
-    
     if levelset is not None:
         msnake.levelset = levelset
     
     # Prepare the visual environment.
-    fig = ppl.gcf()
+    if fig is None:
+        fig = plt.figure()
     fig.clf()
-    ax1 = fig.add_subplot(1,2,1)
+    ax1 = fig.add_subplot(1, 2, 1)
     if background is None:
-        ax1.imshow(msnake.data, cmap=ppl.cm.gray)
+        ax1.imshow(msnake.data, cmap=plt.cm.gray)
     else:
-        ax1.imshow(background, cmap=ppl.cm.gray)
+        ax1.imshow(background, cmap=plt.cm.gray)
     ax1.contour(msnake.levelset, [0.5], colors='r')
     
-    ax2 = fig.add_subplot(1,2,2)
+    ax2 = fig.add_subplot(1, 2, 2)
     ax_u = ax2.imshow(msnake.levelset)
-    ppl.pause(0.001)
+    plt.pause(0.001)
     
     # Iterate.
-    for i in range(num_iters):
+    for _ in range(num_iters):
         # Evolve.
         msnake.step()
         
@@ -337,12 +360,14 @@ def evolve_visual(msnake, levelset=None, num_iters=20, background=None):
         ax1.contour(msnake.levelset, [0.5], colors='r')
         ax_u.set_data(msnake.levelset)
         fig.canvas.draw()
-        #ppl.pause(0.001)
+        #plt.pause(0.001)
     
     # Return the last levelset.
     return msnake.levelset
 
-def evolve_visual3d(msnake, levelset=None, num_iters=20):
+
+def evolve_visual3d(msnake, fig=None, levelset=None, num_iters=20,
+                    animate_ui=True, animate_delay=250):
     """
     Visual evolution of a three-dimensional morphological snake.
     
@@ -350,30 +375,36 @@ def evolve_visual3d(msnake, levelset=None, num_iters=20):
     ----------
     msnake : MorphGAC or MorphACWE instance
         The morphological snake solver.
+    fig: object, optional
+        Handles to actual figure.
     levelset : array-like, optional
         If given, the levelset of the solver is initialized to this. If not
         given, the evolution will use the levelset already set in msnake.
     num_iters : int, optional
         The number of iterations.
+    animate_ui : bool, optional
+        Show the animation interface
+    animate_delay : int, optional
+        The number of delay between frames.
     """
     from mayavi import mlab
-    import matplotlib.pyplot as ppl
-    
+
     if levelset is not None:
         msnake.levelset = levelset
-    
-    fig = mlab.gcf()
+
+    if fig is None:
+        fig = mlab.gcf()
     mlab.clf()
     src = mlab.pipeline.scalar_field(msnake.data)
     mlab.pipeline.image_plane_widget(src, plane_orientation='x_axes', colormap='gray')
     cnt = mlab.contour3d(msnake.levelset, contours=[0.5])
     
-    @mlab.animate(ui=True)
+    @mlab.animate(ui=animate_ui, delay=animate_delay)
     def anim():
         for i in range(num_iters):
             msnake.step()
             cnt.mlab_source.scalars = msnake.levelset
-            print("Iteration %s/%s..." % (i + 1, num_iters))
+            print("Iteration %i/%i..." % (i + 1, num_iters))
             yield
     
     anim()
