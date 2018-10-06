@@ -17,6 +17,8 @@ if os.environ.get('DISPLAY', '') == '':
 PATH_IMG_NODULE = 'images/mama07ORI.bmp'
 PATH_IMG_STARFISH = 'images/seastar2.png'
 PATH_IMG_LAKES = 'images/lakes3.jpg'
+PATH_IMG_CAMERA = 'images/camera.png'
+PATH_IMG_COINS = 'images/coins.png'
 PATH_ARRAY_CONFOCAL = 'images/confocal.npy'
 
 
@@ -134,7 +136,7 @@ def rgb2gray(img):
 
 
 def example_nodule():
-    logging.info('Running: example_nodule...')
+    logging.info('Running: example_nodule (Morphological GAC)...')
     
     # Load the image.
     img = imread(PATH_IMG_NODULE)[..., 0] / 255.0
@@ -156,7 +158,7 @@ def example_nodule():
 
 
 def example_starfish():
-    logging.info('Running: example_starfish...')
+    logging.info('Running: example_starfish (Morphological GAC)...')
     
     # Load the image.
     imgcolor = imread(PATH_IMG_STARFISH) / 255.0
@@ -178,8 +180,30 @@ def example_starfish():
                                              balloon=-1, iter_callback=callback)
 
 
+def example_coins():
+    logging.info('Running: example_coins (Morphological GAC)...')
+    
+    # Load the image.
+    img = imread(PATH_IMG_COINS) / 255.0
+    
+    # g(I)
+    gimg = ms.inverse_gaussian_gradient(img)
+    
+    # Manual initialization of the level set
+    init_ls = np.zeros(img.shape, dtype=np.int8)
+    init_ls[10:-10, 10:-10] = 1
+    
+    # Callback for visual plotting
+    callback = visual_callback_2d(img)
+    
+    # Morphological GAC. 
+    ms.morphological_geodesic_active_contour(gimg, 230, init_ls,
+                                             smoothing=1, threshold=0.69,
+                                             balloon=-1, iter_callback=callback)
+
+
 def example_lakes():
-    logging.info('Running: example_lakes...')
+    logging.info('Running: example_lakes (Morphological Chan-Vese)...')
     
     # Load the image.
     imgcolor = imread(PATH_IMG_LAKES)/255.0
@@ -200,8 +224,28 @@ def example_lakes():
                                iter_callback=callback)
 
 
+def example_camera():
+    """
+    Example with `morphological_chan_vese` with using the default
+    initialization of the level-set.
+    """
+    
+    logging.info('Running: example_camera (Morphological Chan-Vese)...')
+
+    # Load the image.
+    img = imread(PATH_IMG_CAMERA)/255.0
+
+    # Callback for visual plotting
+    callback = visual_callback_2d(img)
+
+    # Morphological Chan-Vese (or ACWE)
+    ms.morphological_chan_vese(img, 35,
+                               smoothing=3, lambda1=1, lambda2=1,
+                               iter_callback=callback)
+
+
 def example_confocal3d():
-    logging.info('Running: example_confocal3d...')
+    logging.info('Running: example_confocal3d (Morphological Chan-Vese)...')
     
     # Load the image.
     img = np.load(PATH_ARRAY_CONFOCAL)
@@ -222,7 +266,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     example_nodule()
     example_starfish()
+    example_coins()
     example_lakes()
+    example_camera()
     
     # Uncomment the following line to see a 3D example
     # This is skipped by default since mplot3d is VERY slow plotting 3d meshes
