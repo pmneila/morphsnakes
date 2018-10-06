@@ -55,15 +55,15 @@ The images below show some working examples of the *Morphological Snakes*.
 
 ## Comparison
 
-![Figure_nodule](examples/Figure_nodule.png)
+![figure_nodule](examples/figure_nodule.png)
 
-![Figure_starfish](examples/Figure_starfish.png)
+![figure_starfish](examples/figure_starfish.png)
 
-![Figure_lakes](examples/Figure_lakes.png)
+![figure_lakes](examples/figure_lakes.png)
 
-![Figure_europe](examples/Figure_europe.png)
+![figure_europe](examples/figure_europe.png)
 
-![Figure_dendrite](examples/Figure_dendrite.png)
+![figure_dendrite](examples/figure_dendrite.png)
 
 
 ## References
