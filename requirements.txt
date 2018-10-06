@@ -1,5 +1,2 @@
 numpy>=1.11.3
 scipy>=0.17.0
-matplotlib==2.0.2
-six>=1.7.3
-pillow>=2.1.0
