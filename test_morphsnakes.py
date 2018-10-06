@@ -1,9 +1,9 @@
 
 import numpy as np
-from skimage.segmentation import (morphological_chan_vese,
-                                  morphological_geodesic_active_contour,
-                                  inverse_gaussian_gradient,
-                                  circle_level_set, checkerboard_level_set)
+from morphsnakes import (morphological_chan_vese,
+                         morphological_geodesic_active_contour,
+                         inverse_gaussian_gradient,
+                         circle_level_set, checkerboard_level_set)
 from numpy.testing import assert_array_equal
 import pytest
 
