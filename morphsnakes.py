@@ -222,11 +222,8 @@ def checkerboard_level_set(image_shape, square_size=5):
     circle_level_set
     """
 
-    grid = np.mgrid[[slice(i) for i in image_shape]]
-    grid = (grid // square_size)
-
-    # Alternate 0/1 for even/odd numbers.
-    grid = grid & 1
+    grid = np.ogrid[[slice(i) for i in image_shape]]
+    grid = [(grid_i // square_size) & 1 for grid_i in grid]
 
     checkerboard = np.bitwise_xor.reduce(grid, axis=0)
     res = np.int8(checkerboard)
