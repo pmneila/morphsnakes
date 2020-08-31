@@ -202,6 +202,55 @@ def circle_level_set(image_shape, center=None, radius=None):
     return res
 
 
+def ellipsoid_level_set(image_shape, center=None, scale_factor=0.9):
+    """Create a ellipsoid level set with binary values.
+
+    Parameters
+    ----------
+    image_shape : tuple of positive integers
+        Shape of the image
+    center : tuple of positive integers, optional
+        Coordinates of the center of the ellipsoid given in (row, column).
+        If not given, it defaults to the center of the image.
+    scale_factor : float, optional
+        Scale factor for the ellipsoid, in [0, 1].
+        If set to 1, the ellipsoid is circumscribed in image of the given
+        `image_shape`. It defaults to 0.9.
+
+    Returns
+    -------
+    out : array with shape `image_shape`
+        Binary level set of the ellipsoid with the given `center`
+        and `scale_factor`.
+
+    See also
+    --------
+    circle_level_set
+    """
+
+    if center is None:
+        center = tuple(i // 2 for i in image_shape)
+
+    if len(image_shape) == 2:
+        rx, ry = center
+        phi = scale_factor - np.fromfunction(
+            lambda x, y: ((x - rx) / rx) ** 2 +
+                         ((y - ry) / ry) ** 2,
+            image_shape, dtype=int)
+    elif len(image_shape) == 3:
+        rx, ry, rz = center
+        phi = scale_factor - np.fromfunction(
+            lambda x, y, z: ((x - rx) / rx) ** 2 +
+                            ((y - ry) / ry) ** 2 +
+                            ((z - rz) / rz) ** 2,
+            image_shape, dtype=int)
+    else:
+        raise ValueError("`image_shape` must be a 2- or 3-tuple.")
+
+    res = np.int8(phi > 0)
+    return res
+
+
 def checkerboard_level_set(image_shape, square_size=5):
     """Create a checkerboard level set with binary values.
 
