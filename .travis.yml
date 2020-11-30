@@ -13,10 +13,10 @@ language: python
 sudo: required
 
 python:
-  - 2.7
   - 3.4
   - 3.5
   - 3.6
+  - 3.7
 
 # See http://docs.travis-ci.com/user/caching/#pip-cache
 cache: pip
