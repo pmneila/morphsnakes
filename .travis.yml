@@ -8,15 +8,17 @@ env:
   global:
     - CODACY_PROJECT_TOKEN=e03e55fa447b4f21811a99f63f7e9138
 
+os: linux
+
+dist: xenial
+
 language: python
 
-sudo: required
-
 python:
-  - 3.4
   - 3.5
   - 3.6
   - 3.7
+  - 3.8
 
 # See http://docs.travis-ci.com/user/caching/#pip-cache
 cache: pip
