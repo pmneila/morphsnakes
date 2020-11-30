@@ -56,15 +56,15 @@ from itertools import cycle
 import numpy as np
 from scipy import ndimage as ndi
 
-__all__ = ['morphological_chan_vese',
-           'morphological_geodesic_active_contour',
-           'inverse_gaussian_gradient',
-           'circle_level_set',
-           'checkerboard_level_set'
-          ]
+__all__ = [
+    'morphological_chan_vese',
+    'morphological_geodesic_active_contour',
+    'inverse_gaussian_gradient',
+    'circle_level_set',
+    'checkerboard_level_set'
+]
 
-
-__version__ = (2, 0, 1)
+__version__ = (2, 1, 1)
 __version_str__ = ".".join(map(str, __version__))
 
 
@@ -139,7 +139,7 @@ _curvop = _fcycle([lambda u: sup_inf(inf_sup(u)),   # SIoIS
 
 def _check_input(image, init_level_set):
     """Check that shapes of `image` and `init_level_set` match."""
-    if not image.ndim in [2, 3]:
+    if image.ndim not in [2, 3]:
         raise ValueError("`image` must be a 2 or 3-dimensional array.")
 
     if len(image.shape) != len(init_level_set.shape):
