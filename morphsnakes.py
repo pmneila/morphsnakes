@@ -186,6 +186,7 @@ def circle_level_set(image_shape, center=None, radius=None):
 
     See also
     --------
+    ellipsoid_level_set
     checkerboard_level_set
     """
 
@@ -212,7 +213,7 @@ def ellipsoid_level_set(image_shape, center=None, semi_axis=None):
     center : tuple of integers, optional
         Coordinates of the center of the ellipsoid.
         If not given, it defaults to the center of the image.
-    semi_axis : tuple of integers, optinal
+    semi_axis : tuple of floats, optional
         Lengths of the semi-axis of the ellispoid.
         If not given, it defaults to the half of the image dimensions.
 
@@ -231,7 +232,7 @@ def ellipsoid_level_set(image_shape, center=None, semi_axis=None):
         center = tuple(i // 2 for i in image_shape)
 
     if semi_axis is None:
-        semi_axis = tuple(i // 2 for i in image_shape)
+        semi_axis = tuple(i / 2 for i in image_shape)
 
     if len(center) != len(image_shape):
         raise ValueError("`center` and `image_shape` must have the same length.")
@@ -245,7 +246,7 @@ def ellipsoid_level_set(image_shape, center=None, semi_axis=None):
         phi = 1 - np.fromfunction(
             lambda x, y: ((x - xc) / rx) ** 2 +
                          ((y - yc) / ry) ** 2,
-            image_shape, dtype=int)
+            image_shape, dtype=float)
     elif len(image_shape) == 3:
         xc, yc, zc = center
         rx, ry, rz = semi_axis
@@ -253,7 +254,7 @@ def ellipsoid_level_set(image_shape, center=None, semi_axis=None):
             lambda x, y, z: ((x - xc) / rx) ** 2 +
                             ((y - yc) / ry) ** 2 +
                             ((z - zc) / rz) ** 2,
-            image_shape, dtype=int)
+            image_shape, dtype=float)
     else:
         raise ValueError("`image_shape` must be a 2- or 3-tuple.")
 
