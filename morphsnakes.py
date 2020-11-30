@@ -157,9 +157,11 @@ def _init_level_set(init_level_set, image_shape):
             res = checkerboard_level_set(image_shape)
         elif init_level_set == 'circle':
             res = circle_level_set(image_shape)
+        elif init_level_set == 'ellipsoid':
+            res = ellipsoid_level_set(image_shape)
         else:
             raise ValueError("`init_level_set` not in "
-                             "['checkerboard', 'circle']")
+                             "['checkerboard', 'circle', 'ellipsoid']")
     else:
         res = init_level_set
     return res

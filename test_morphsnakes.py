@@ -123,8 +123,21 @@ def test_init_level_sets():
                            [0, 1, 1, 1, 1, 1],
                            [0, 0, 1, 1, 1, 0]], dtype=np.int8)
 
+    ellipsoid_ls = morphological_chan_vese(np.zeros((7, 9)), 0, 'ellipsoid')
+    ellipsoid_ref = np.array(
+        [[0, 0, 1, 1, 1, 1, 1, 0, 0],
+         [0, 1, 1, 1, 1, 1, 1, 1, 0],
+         [1, 1, 1, 1, 1, 1, 1, 1, 1],
+         [1, 1, 1, 1, 1, 1, 1, 1, 1],
+         [1, 1, 1, 1, 1, 1, 1, 1, 1],
+         [0, 1, 1, 1, 1, 1, 1, 1, 0],
+         [0, 0, 1, 1, 1, 1, 1, 0, 0]],
+        dtype=np.uint8
+    )
+
     assert_array_equal(checkerboard_ls, checkerboard_ref)
     assert_array_equal(circle_ls, circle_ref)
+    assert_array_equal(ellipsoid_ls, ellipsoid_ref)
 
 
 def test_morphsnakes_3d():
