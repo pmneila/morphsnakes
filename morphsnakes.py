@@ -65,7 +65,6 @@ __all__ = [
 ]
 
 __version__ = (2, 1, 1)
-__version_str__ = ".".join(map(str, __version__))
 
 
 class _fcycle(object):

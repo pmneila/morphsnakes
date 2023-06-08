@@ -5,11 +5,23 @@ try:
 except ImportError:
     from distutils.core import setup
 
-from morphsnakes import __version_str__
+
+def get_version():
+    """ Avoid importing package before dependencies are installed. """
+    values = {}
+    with open("morphsnakes.py", "r") as f:
+        for line in f.readlines():
+            if "__version__" in line:
+                exec(line, {}, values)
+                break
+
+    version = values.get("__version__", (0, 1, 0))
+    return ".".join(map(str, version))
+
 
 setup(
     name="morphsnakes",
-    version=__version_str__,
+    version=get_version(),
     description="Morphological Snakes",
     author="Pablo Márquez Neila",
     author_email="pablo.marquez@artorg.unibe.ch",
@@ -17,7 +29,7 @@ setup(
     license="BSD 3-clause",
     # packages=["morphsnakes"],
     py_modules=["morphsnakes"],
-    requires=['numpy', 'scipy'],
+    install_requires=['numpy', 'scipy'],
     long_description="""
     The Morphological Snakes are a family of methods for image-guided 
     evolution of curves and surfaces represented as a level-set of an embedding 
