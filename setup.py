@@ -17,7 +17,7 @@ setup(
     license="BSD 3-clause",
     # packages=["morphsnakes"],
     py_modules=["morphsnakes"],
-    requires=['numpy', 'scipy'],
+    install_requires=['numpy', 'scipy'],
     long_description="""
     The Morphological Snakes are a family of methods for image-guided 
     evolution of curves and surfaces represented as a level-set of an embedding 
